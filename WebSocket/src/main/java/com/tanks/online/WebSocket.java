@@ -24,7 +24,7 @@ public class WebSocket{
   @OnOpen
   public void onOpen(Session session){
     logger.info("Connected " + session.getId());
-    player = new Player(session.getId());
+    player = new Player(session.getId(), WebSocketServer.physicsEngine);
     WebSocketServer.players.add(player);
   }
 
@@ -48,8 +48,8 @@ public class WebSocket{
 
       case "getPlayerInfo":
         return "{\"connectedPlayerId\":\"" + player.getId() + "\"," +
-                 "\"connectedPlayerCoordX\":" + player.getCoordX() + "," +
-                 "\"connectedPlayerCoordY\":" + player.getCoordY() + "}";
+                 "\"connectedPlayerCoordX\":" + player.getX() + "," +
+                 "\"connectedPlayerCoordY\":" + player.getY() + "}";
     }
     return "response";
   }
@@ -64,18 +64,11 @@ public class WebSocket{
 
       JsonObject root = new JsonParser().parse(json).getAsJsonObject();
 
-      if(root.get("isFiring").getAsBoolean()){
-        player.setFiring(true);
-      }
-      else{
-        player.setFiring(false);
-      }
-      player.setCoordX(root.get("coordX").getAsInt());
-      player.setCoordY(root.get("coordY").getAsInt());
-      player.setTurretRotation(root.get("turretRotation").getAsFloat());
-      player.setTankRotation(root.get("tankRotation").getAsFloat());
       player.setMouseX(root.get("mouseX").getAsFloat());
       player.setMouseY(root.get("mouseY").getAsFloat());
-      //player.setBulletNumber(root.get("bulletNumber").getAsInt());
+      player.setAccelerating(root.get("isAccelerating").getAsBoolean());
+      player.setRotatingLeft(root.get("isRotatingLeft").getAsBoolean());
+      player.setRotatingRight(root.get("isRotatingRight").getAsBoolean());
+
     }
 }

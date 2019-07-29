@@ -27,12 +27,6 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
   this.turret.scale.setTo(0.5);
   this.turret.anchor.setTo(0.45, 0.80);
 
-  game.physics.enable(this.tank, Phaser.Physics.ARCADE);
-  this.tank.body.immovable = false;
-  this.tank.body.collideWorldBounds = true;
-  this.tank.enableBody = true;
-  this.tank.body.setCircle(100);
-  this.tank.body.setCircle(100, 25, 60);
 
 
   game.world.bringToTop(this.tank);
@@ -45,9 +39,6 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
 EnemyTank.prototype.update = function(){
 
   //this.fire();
-  game.physics.arcade.overlap(this.bullets, tank, this.hitEnemy, null, this);
-  game.physics.arcade.overlap(bullets, this.tank, this.hittedByEnemy, null, this);
-  game.physics.arcade.collide(tank, this.tank);
 
   this.turret.x = this.tank.x;
   this.turret.y = this.tank.y;
@@ -129,7 +120,12 @@ var fireRate = 100;
 var nextFire = 0;
 var tank;
 var enemy;
+
 var isFiring;
+var isAccelerating;
+var isRotatingLeft;
+var isRotatingRight;
+
 var jsonObj;
 
 var playerNumber = 1;
@@ -144,11 +140,9 @@ setInterval(function(){
 
     player = {
               "isFiring": isFiring,
-              "bulletNumber": bulletNumber,
-              "coordX": tank.x,
-              "coordY": tank.y,
-              "turretRotation": turret.rotation,
-              "tankRotation": tank.rotation,
+              "isAccelerating": isAccelerating,
+              "isRotatingLeft": isRotatingLeft,
+              "isRotatingRight": isRotatingRight,
               "mouseX": game.input.mousePointer.x + game.camera.x,
               "mouseY": game.input.mousePointer.y + game.camera.y
     };
@@ -168,7 +162,7 @@ function create () {
     connection.send("getPlayerInfo");
   }
   connection.onmessage = function(e){
-    //console.log(e.data);
+    console.log(e.data);
     jsonObj = JSON.parse(e.data);
 
     if(jsonObj.connectedPlayerId != undefined){
@@ -187,7 +181,7 @@ function create () {
   //SOCKET CONNECTION
 
 
-  game.world.setBounds(-2000, -2000, 3000, 3000);
+  game.world.setBounds(-2000, -2000, 4000, 4000);
   game.time.slowMotion = 1;
   background = game.add.tileSprite(0, 0, 1600, 900, 'Background');
   background.fixedToCamera = true;
@@ -210,15 +204,10 @@ function create () {
   bullets.setAll('anchor.y', 0.5);
   bullets.callAll('body.setCircle', 'body', 15, -40, -5);
   //Physics
-  game.physics.enable(tank, Phaser.Physics.ARCADE);
-  tank.body.drag.set(10);
-  tank.body.maxVelocity.setTo(600, 600);
-  tank.body.collideWorldBounds = true;
-  tank.body.setCircle(100, 25, 60);
-  tank.body.enableBody = true;
-  tank.body.immovable = false;
+
 
   directions = game.input.keyboard.createCursorKeys();
+
 
   game.camera.follow(tank);
 
@@ -227,11 +216,42 @@ function create () {
 
 function update () {
 
+  turret.x = tank.x;
+  turret.y = tank.y;
+  background.tilePosition.x = -game.camera.x;
+  background.tilePosition.y = -game.camera.y;
 
-  enemies.forEach(function(item){
+  if(directions.up.isDown){
+
+    isAccelerating = true;
+  }
+  else{
+
+    isAccelerating = false;
+  }
+
+  if(directions.left.isDown){
+
+    isRotatingLeft = true;
+  }
+  else{
+
+    isRotatingLeft = false;
+  }
+
+  if(directions.right.isDown){
+
+    isRotatingRight = true;
+  }
+  else{
+
+    isRotatingRight = false;
+  }
+
+  this.angle += 1;
+/*  enemies.forEach(function(item){
     item.update();
   });
-
 
 
   if (directions.left.isDown){
@@ -275,7 +295,7 @@ function update () {
   background.tilePosition.y = -game.camera.y;
 
 
-  turret.rotation = game.physics.arcade.angleToPointer(turret) + 1.54;
+  turret.rotation = game.physics.arcade.angleToPointer(turret) + 1.54;*/
 
 }
 
@@ -317,7 +337,7 @@ function executeJSON(json){
 
     for(var i = 0 ; i < json.players.length ; i++){
       if(id != json.players[i].id){
-        enemies[i] = new EnemyTank(json.players[i].id, game, null, json.players[i].coordX, json.players[i].coordY);
+        enemies[i] = new EnemyTank(json.players[i].id, game, null, json.players[i].positionX, json.players[i].positionY);
         enemies[i].bulletNumber = json.players[i].bulletNumber;
       }
     }
@@ -339,21 +359,21 @@ function executeJSON(json){
 
     if(json.players[i].id == id){
       bulletNumber = json.players[i].bulletNumber;
-      tank.x = json.players[i].coordX;
-      tank.y = json.players[i].coordY;
+      tank.x = json.players[i].positionX;
+      tank.y = json.players[i].positionY;
       turret.x = tank.x;
       turret.y = tank.y;
-      turret.rotation = json.players[i].turretRotation;
-      tank.rotation = json.players[i].tankRotation;
+      turret.angle = json.players[i].turretAngle;
+      tank.angle = json.players[i].angle;
     }
     else{
       enemies[i].bulletNumber = json.players[i].bulletNumber;
-      enemies[i].tank.x = json.players[i].coordX;
-      enemies[i].tank.y = json.players[i].coordY;
+      enemies[i].tank.x = json.players[i].positionX;
+      enemies[i].tank.y = json.players[i].positionY;
       enemies[i].turret.x = enemies[i].tank.x;
       enemies[i].turret.y = enemies[i].tank.y;
-      enemies[i].turret.rotation = json.players[i].turretRotation;
-      enemies[i].tank.rotation = json.players[i].tankRotation;
+      enemies[i].turret.angle = json.players[i].turretAngle;
+      enemies[i].tank.angle = json.players[i].angle;
 
     }
   }

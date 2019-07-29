@@ -1,36 +1,39 @@
 package com.tanks.online;
 
+import com.tanks.online.Physics.Body;
+import com.tanks.online.Physics.Engine;
 
-public class Player{
+public class Player extends Body{
 
 
   public static final int DEFAULT_BULLET_NUMBER = 1000;
 
   private String id;
   private String data;
+
   private boolean firing;
+  private boolean accelerating;
+  private boolean rotatingLeft;
+  private boolean rotatingRight;
+
   private int bulletNumber;
-  private float turretRotation;
-  private float tankRotation;
-  private int coordX;
-  private int coordY;
+  private int turretAngle;
+
   private float mouseX;
   private float mouseY;
 
-  public Player(String id){
 
+  public Player(String id, Engine engine){
+
+    super(engine.getWorld());
     this.id = id;
     this.firing = false;
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
-    this.coordX = (int)(Math.random() * 300) - 300;
-    this.coordY = (int)(Math.random() * 300) - 300;
-  }
 
-  public Player(String id, int bulletNumber){
+    com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
+    this.setSize(100, 100);
+    this.setLocation(Math.random() * 300, Math.random() * 300);
 
-    this.id = id;
-    this.firing = false;
-    this.bulletNumber = bulletNumber;
   }
 
   public float getMouseX(){
@@ -43,25 +46,11 @@ public class Player{
     return this.mouseY;
   }
 
-  public float getTurretRotation(){
+  public float getTurretAngle(){
 
-    return this.turretRotation;
+    return this.turretAngle;
   }
 
-  public float getTankRotation(){
-
-    return this.tankRotation;
-  }
-
-  public int getCoordX(){
-
-    return this.coordX;
-  }
-
-  public int getCoordY(){
-
-    return this.coordY;
-  }
 
   public String getData(){
 
@@ -83,6 +72,22 @@ public class Player{
     return this.firing;
   }
 
+  public boolean isAccelerating(){
+
+    return this.accelerating;
+  }
+
+  public boolean isRotatingLeft(){
+
+    return this.rotatingLeft;
+  }
+
+  public boolean isRotatingRight(){
+
+    return this.rotatingRight;
+  }
+
+
   public void setMouseX(float mouseX){
 
     this.mouseX = mouseX;
@@ -93,25 +98,6 @@ public class Player{
     this.mouseY = mouseY;
   }
 
-  public void setTurretRotation(float turretRotation){
-
-    this.turretRotation = turretRotation;
-  }
-
-  public void setTankRotation(float tankRotation){
-
-    this.tankRotation = tankRotation;
-  }
-
-  public void setCoordX(int coordX){
-
-    this.coordX = coordX;
-  }
-
-  public void setCoordY(int coordY){
-
-    this.coordY = coordY;
-  }
 
   public void setData(String data){
 
@@ -122,9 +108,26 @@ public class Player{
     this.firing = firing;
   }
 
+  public void setAccelerating(Boolean accelerating){
+    this.accelerating = accelerating;
+  }
+
+  public void setRotatingLeft(Boolean rotatingLeft){
+    this.rotatingLeft = rotatingLeft;
+  }
+
+  public void setRotatingRight(Boolean rotatingRight){
+    this.rotatingRight = rotatingRight;
+  }
+
   public void setBulletNumber(int bulletNumber){
 
     this.bulletNumber = bulletNumber;
+  }
+
+  public void setTurretAngle(int turretAngle){
+
+    this.turretAngle = turretAngle;
   }
 
 

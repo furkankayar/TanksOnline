@@ -1,0 +1,125 @@
+package com.tanks.online.Physics;
+
+
+public class Body{
+
+
+  private World world;
+  private double x;
+  private double y;
+  private int length;
+  private int height;
+
+  private int velocity;
+  private float rotation;
+  private int angle;
+
+  private int[] worldBounds;
+
+  public Body(World world){
+
+    this.world = world;
+    this.worldBounds = world.getBounds();
+
+  }
+
+
+  public double[] getBounds(){
+
+    return new double[]{this.x, this.y, this.x + this.length , this.y + this.height};
+  }
+
+  public void setLocation(double x, double y){
+
+    this.x = x;
+    this.y = y;
+  }
+
+  public void setSize(int length, int height){
+
+    this.length = length;
+    this.height = height;
+  }
+
+  public void setAngle(int angle){
+
+    this.angle = angle;
+  }
+
+  public void setRotation(float rotation){
+
+    this.rotation = rotation;
+  }
+
+  public void setVelocity(int velocity){
+
+    this.velocity = velocity;
+  }
+
+  public int getAngle(){
+
+    return this.angle;
+  }
+
+  public double getX(){
+
+    return this.x;
+  }
+
+  public double getY(){
+
+    return this.y;
+  }
+
+  public float getRotation(){
+
+    return this.rotation;
+  }
+
+  public int getVelocity(){
+
+    return this.velocity;
+  }
+
+  public void velocityFromAngle(){
+
+    double tempX = this.x + Math.sin(Math.toRadians(this.angle)) * 3;
+    double tempY = this.y - Math.cos(Math.toRadians(this.angle)) * 3;
+
+
+    if(tempX > this.worldBounds[0] && tempX + this.length < this.worldBounds[0] + this.worldBounds[2]){
+      this.x = tempX;
+    }
+
+    if(tempY > this.worldBounds[1] && tempY + this.height < this.worldBounds[1] + this.worldBounds[3]){
+      this.y = tempY;
+    }
+  }
+
+  public void velocityToPoint(double toX, double toY){
+
+    double angleBetweenPoints = Math.atan(Math.abs(toX - this.x) / Math.abs(toY - this.y)); // HAS TO BE FIXED
+    double tempX = this.x + Math.sin(angleBetweenPoints);
+    double tempY = this.y + Math.cos(angleBetweenPoints);
+
+
+    if(tempX > this.worldBounds[0] && tempX + this.length < this.worldBounds[1]){
+      this.x = tempX;
+    }
+
+    if(tempY > this.worldBounds[2] && tempY + this.height < this.worldBounds[3]){
+      this.y = tempY;
+    }
+  }
+
+  public void rotateRight(){
+
+    this.angle += 1;
+  }
+
+  public void rotateLeft(){
+
+    this.angle -= 1;
+  }
+
+}

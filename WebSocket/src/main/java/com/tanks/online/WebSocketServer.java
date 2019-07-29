@@ -12,7 +12,7 @@ public class WebSocketServer {
 
 
   public static ArrayList<Player> players = new ArrayList<Player>();
-
+  public static com.tanks.online.Physics.Engine physicsEngine = new com.tanks.online.Physics.Engine();
 
   public static void main( String[] args ){
 
@@ -40,20 +40,19 @@ public class WebSocketServer {
 
   public static String getGameStatus(){
 
+    physicsEngine.update();
     JsonObject root = new JsonObject();
     JsonArray playersStatus = new JsonArray();
 
     for(Player player : players){
       JsonObject playerStatus = new JsonObject();
       playerStatus.addProperty("id", player.getId());
-      playerStatus.addProperty("fire", player.getFiring());
-      playerStatus.addProperty("bulletNumber", player.getBulletNumber());
-      playerStatus.addProperty("coordX", player.getCoordX());
-      playerStatus.addProperty("coordY", player.getCoordY());
-      playerStatus.addProperty("turretRotation", player.getTurretRotation());
-      playerStatus.addProperty("tankRotation", player.getTankRotation());
+      playerStatus.addProperty("positionX", player.getX());
+      playerStatus.addProperty("positionY", player.getY());
       playerStatus.addProperty("mouseX", player.getMouseX());
       playerStatus.addProperty("mouseY", player.getMouseY());
+      playerStatus.addProperty("angle", player.getAngle());
+      playerStatus.addProperty("turretAngle", player.getTurretAngle());
 
       playersStatus.add(playerStatus);
     }
