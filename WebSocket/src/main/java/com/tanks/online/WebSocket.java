@@ -15,6 +15,8 @@ import javax.websocket.server.ServerEndpoint;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
+import com.tanks.online.Components.Player;
+
 @ServerEndpoint(value = "/game")
 public class WebSocket{
 
@@ -69,6 +71,7 @@ public class WebSocket{
       player.setAccelerating(root.get("isAccelerating").getAsBoolean());
       player.setRotatingLeft(root.get("isRotatingLeft").getAsBoolean());
       player.setRotatingRight(root.get("isRotatingRight").getAsBoolean());
+      player.setFiring(root.get("isFiring").getAsBoolean());
 
     }
 }

@@ -8,6 +8,9 @@ import org.glassfish.tyrus.server.Server;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonArray;
 
+import com.tanks.online.Components.Player;
+import com.tanks.online.Components.Bullet;
+
 public class WebSocketServer {
 
 
@@ -54,6 +57,14 @@ public class WebSocketServer {
       playerStatus.addProperty("angle", player.getAngle());
       playerStatus.addProperty("turretAngle", player.getTurretAngle());
 
+      JsonArray firedBullets = new JsonArray();
+      for(Bullet bullet : player.getFiredBullets()){
+        JsonObject bulletStatus = new JsonObject();
+        bulletStatus.addProperty("x", bullet.getX());
+        bulletStatus.addProperty("y", bullet.getY());
+        firedBullets.add(bulletStatus);
+      }
+      playerStatus.add("bullets", firedBullets);
       playersStatus.add(playerStatus);
     }
 

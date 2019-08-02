@@ -121,10 +121,10 @@ var nextFire = 0;
 var tank;
 var enemy;
 
-var isFiring;
-var isAccelerating;
-var isRotatingLeft;
-var isRotatingRight;
+var isFiring = false;
+var isAccelerating = false;
+var isRotatingLeft = false;
+var isRotatingRight = false;
 
 var jsonObj;
 
@@ -156,7 +156,7 @@ function create () {
 
 
   //SOCKET CONNECTION
-  connection = new WebSocket('ws:192.168.1.32:8080/websockets/game');
+  connection = new WebSocket('ws:95.183.153.227:8080/websockets/game');
   connection.onopen = function(){
     console.log('Connection successful');
     connection.send("getPlayerInfo");
@@ -248,7 +248,15 @@ function update () {
     isRotatingRight = false;
   }
 
-  this.angle += 1;
+  if(game.input.activePointer.isDown){
+
+    isFiring = true;
+  }
+  else{
+
+    isFiring = false;
+  }
+
 /*  enemies.forEach(function(item){
     item.update();
   });
