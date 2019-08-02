@@ -5,16 +5,16 @@ public class Body{
 
 
   private World world;
-  private double x;
-  private double y;
-  private int length;
-  private int height;
+  protected double x;
+  protected double y;
+  protected int length;
+  protected int height;
 
-  private int velocity;
-  private float rotation;
-  private int angle;
+  protected int velocity;
+  protected float rotation;
+  protected int angle;
 
-  private int[] worldBounds;
+  protected int[] worldBounds;
 
   public Body(World world){
 
@@ -79,6 +79,16 @@ public class Body{
   public int getVelocity(){
 
     return this.velocity;
+  }
+
+  public int getLength(){
+
+    return this.length;
+  }
+
+  public int getHeight(){
+
+    return this.height;
   }
 
   public void velocityFromAngle(){

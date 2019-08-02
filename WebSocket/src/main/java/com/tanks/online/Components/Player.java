@@ -1,7 +1,9 @@
-package com.tanks.online;
+package com.tanks.online.Components;
 
 import com.tanks.online.Physics.Body;
 import com.tanks.online.Physics.Engine;
+
+import java.util.ArrayList;
 
 public class Player extends Body{
 
@@ -17,19 +19,25 @@ public class Player extends Body{
   private boolean rotatingRight;
 
   private int bulletNumber;
+  private int fireRate;
+  private long nextFire;
   private int turretAngle;
 
   private float mouseX;
   private float mouseY;
 
+  private Engine engine;
+  private ArrayList<Bullet> firedBullets;
 
   public Player(String id, Engine engine){
 
     super(engine.getWorld());
+    this.engine = engine;
     this.id = id;
     this.firing = false;
+    this.fireRate = 100;
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
-
+    this.firedBullets = new ArrayList<Bullet>();
     com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
     this.setSize(100, 100);
     this.setLocation(Math.random() * 300, Math.random() * 300);
@@ -67,7 +75,7 @@ public class Player extends Body{
     return this.bulletNumber;
   }
 
-  public boolean getFiring(){
+  public boolean isFiring(){
 
     return this.firing;
   }
@@ -85,6 +93,30 @@ public class Player extends Body{
   public boolean isRotatingRight(){
 
     return this.rotatingRight;
+  }
+
+  public void fireBullet(){
+
+    if(this.bulletNumber > 0 && System.currentTimeMillis() > this.nextFire){
+      this.nextFire = System.currentTimeMillis() + this.fireRate;
+      Bullet bullet = new Bullet(this.engine.getWorld(), this.turretAngle, this.bulletNumber--, this.x, this.y);
+      firedBullets.add(bullet);
+    }
+  }
+
+  public ArrayList<Bullet> getFiredBullets(){
+
+    return this.firedBullets;
+  }
+
+  public void addFiredBullet(Bullet bullet){
+
+    this.firedBullets.add(bullet);
+  }
+
+  public void removeFiredBullet(Bullet bullet){
+
+    this.firedBullets.remove(bullet);
   }
 
 
