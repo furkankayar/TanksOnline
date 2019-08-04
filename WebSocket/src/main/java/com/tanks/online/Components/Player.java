@@ -4,6 +4,8 @@ import com.tanks.online.Physics.Body;
 import com.tanks.online.Physics.Engine;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
 
 public class Player extends Body{
 
@@ -27,7 +29,7 @@ public class Player extends Body{
   private float mouseY;
 
   private Engine engine;
-  private ArrayList<Bullet> firedBullets;
+  private List<Bullet> firedBullets;
 
   public Player(String id, Engine engine){
 
@@ -37,7 +39,7 @@ public class Player extends Body{
     this.firing = false;
     this.fireRate = 100;
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
-    this.firedBullets = new ArrayList<Bullet>();
+    this.firedBullets = Collections.synchronizedList(new ArrayList<Bullet>());
     com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
     this.setSize(100, 100);
     this.setLocation(Math.random() * 300, Math.random() * 300);
@@ -104,7 +106,7 @@ public class Player extends Body{
     }
   }
 
-  public ArrayList<Bullet> getFiredBullets(){
+  public List<Bullet> getFiredBullets(){
 
     return this.firedBullets;
   }

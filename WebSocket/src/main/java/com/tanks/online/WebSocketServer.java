@@ -20,6 +20,7 @@ public class WebSocketServer {
   public static void main( String[] args ){
 
     runServer();
+
   }
 
   public static void runServer(){
@@ -29,6 +30,7 @@ public class WebSocketServer {
     try{
 
       server.start();
+      physicsEngine.start();
       BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
       System.out.print("Press a key to stop the server.");
       reader.readLine();
@@ -43,9 +45,9 @@ public class WebSocketServer {
 
   public static String getGameStatus(){
 
-    physicsEngine.update();
     JsonObject root = new JsonObject();
     JsonArray playersStatus = new JsonArray();
+    JsonArray firedBullets = new JsonArray();
 
     for(Player player : players){
       JsonObject playerStatus = new JsonObject();
@@ -57,19 +59,21 @@ public class WebSocketServer {
       playerStatus.addProperty("angle", player.getAngle());
       playerStatus.addProperty("turretAngle", player.getTurretAngle());
 
-      JsonArray firedBullets = new JsonArray();
+
       for(Bullet bullet : player.getFiredBullets()){
         JsonObject bulletStatus = new JsonObject();
         bulletStatus.addProperty("x", bullet.getX());
         bulletStatus.addProperty("y", bullet.getY());
+        bulletStatus.addProperty("angle", bullet.getAngle());
         firedBullets.add(bulletStatus);
       }
-      playerStatus.add("bullets", firedBullets);
+
       playersStatus.add(playerStatus);
     }
 
     root.addProperty("playerNumber", players.size());
     root.add("players", playersStatus);
+    root.add("bullets", firedBullets);
 
     return root.toString();
   }

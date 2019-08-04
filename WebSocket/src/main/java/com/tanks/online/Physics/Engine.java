@@ -4,18 +4,21 @@ import com.tanks.online.Components.Player;
 import com.tanks.online.Components.Bullet;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 
-public class Engine{
+public class Engine extends Thread{
 
   private World world;
 
-  private ArrayList<Player> players;
+  private List<Player> players;
 
   public Engine(){
 
     this.world = new World();
     this.world.setBounds(-2000, -2000, 4000, 4000);
-    this.players = new ArrayList<Player>();
+    this.players = Collections.synchronizedList(new ArrayList<Player>());
 
   }
 
@@ -60,4 +63,18 @@ public class Engine{
     }
   }
 
+  @Override
+  public void run(){
+
+    while(true){
+      try{
+        this.update();
+        Thread.sleep(5);
+      }
+      catch(ConcurrentModificationException ex){
+
+      }
+      catch(Exception e){}
+    }
+  }
 }

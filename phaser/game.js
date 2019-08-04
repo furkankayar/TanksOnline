@@ -4,20 +4,8 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
 
   this.mouseX = 0;
   this.mouseY = 0;
-  this.bulletNumber = 1000;
-  this.fireRate = 100;
-  this.nextFire = 0;
-
-  this.bullets = game.add.group();
-  this.bullets.enableBody = true;
-  this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
-  this.bullets.createMultiple(bulletNumber, 'Bullet', 0, false);
-  this.bullets.setAll('anchor.x', -0.3);
-  this.bullets.setAll('anchor.y', 0.5);
-  this.bullets.callAll('body.setCircle', 'body', 15, -40, -5);
 
   this.game = game;
-  this.health = 30;
 
   this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_A_01');
   this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_A_01');
@@ -26,8 +14,6 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
   this.tank.anchor.setTo(0.5, 0.65);
   this.turret.scale.setTo(0.5);
   this.turret.anchor.setTo(0.45, 0.80);
-
-
 
   game.world.bringToTop(this.tank);
   game.world.bringToTop(this.turret);
@@ -38,48 +24,10 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
 
 EnemyTank.prototype.update = function(){
 
-  //this.fire();
-
   this.turret.x = this.tank.x;
   this.turret.y = this.tank.y;
 }
 
-EnemyTank.prototype.fire = function(){
-
-
-  if (game.time.now > this.nextFire && this.bulletNumber > 0 && this.health > 0){
-
-    this.nextFire = game.time.now + this.fireRate;
-    var bullet = this.bullets.getFirstExists(false);
-    bullet.reset(this.turret.x, this.turret.y);
-    bullet.rotation = game.physics.arcade.moveToXY(bullet, this.mouseX, this.mouseY, 2000);
-    this.bulletNumber -= 1;
-  }
-}
-
-EnemyTank.prototype.damage = function(){
-
-  this.health -= 1;
-
-  if(this.health <= 0){
-
-    this.alive = false;
-    this.tank.kill();
-    this.turret.kill();
-  }
-}
-
-EnemyTank.prototype.hitEnemy = function(tank, bullet){
-
-    bullet.kill();
-    damage();
-}
-
-EnemyTank.prototype.hittedByEnemy = function(tank, bullet){
-
-  bullet.kill();
-  this.damage();
-}
 
 var game = new Phaser.Game(1600, 900, Phaser.AUTO, 'phaser-example',
   {
@@ -92,13 +40,6 @@ var game = new Phaser.Game(1600, 900, Phaser.AUTO, 'phaser-example',
 
 function preload () {
 
-    /*game.load.atlas('tank', 'assets/games/tanks/tanks.png', 'assets/games/tanks/tanks.json');
-    game.load.atlas('enemy', 'assets/games/tanks/enemy-tanks.png', 'assets/games/tanks/tanks.json');
-    game.load.image('logo', 'assets/games/tanks/logo.png');
-    game.load.image('bullet', 'assets/games/tanks/bullet.png');
-    game.load.image('earth', 'assets/games/tanks/scorched_earth.png');
-    game.load.spritesheet('kaboom', 'assets/games/tanks/explosion.png', 64, 64, 23);
-*/
 
   game.physics.startSystem(Phaser.Physics.ARCADE);
   game.time.advancedTiming = true;
@@ -113,13 +54,8 @@ function preload () {
 }
 
 var id;
-var currentSpeed = 0;
-var bullets;
-var bulletNumber = 1000;
-var fireRate = 100;
-var nextFire = 0;
+
 var tank;
-var enemy;
 
 var isFiring = false;
 var isAccelerating = false;
@@ -131,39 +67,28 @@ var jsonObj;
 var playerNumber = 1;
 var connection;
 var enemies = [];
+var bullets = [];
+var date = new Date();
+var time;
+var ping;
 
 
-
-setInterval(function(){
-
-  if(connection.readyState == WebSocket.OPEN){
-
-    player = {
-              "isFiring": isFiring,
-              "isAccelerating": isAccelerating,
-              "isRotatingLeft": isRotatingLeft,
-              "isRotatingRight": isRotatingRight,
-              "mouseX": game.input.mousePointer.x + game.camera.x,
-              "mouseY": game.input.mousePointer.y + game.camera.y
-    };
-    connection.send('getGameStatus;' + JSON.stringify(player));
-
-  }
-
-}, 10);
 
 function create () {
 
 
   //SOCKET CONNECTION
-  connection = new WebSocket('ws:95.183.153.227:8080/websockets/game');
+
+  connection = new WebSocket('ws:192.168.1.32:8080/websockets/game');
   connection.onopen = function(){
     console.log('Connection successful');
     connection.send("getPlayerInfo");
   }
   connection.onmessage = function(e){
-    console.log(e.data);
+  //  console.log(e.data);
+    ping = date.getTime() - time;
     jsonObj = JSON.parse(e.data);
+
 
     if(jsonObj.connectedPlayerId != undefined){
       id = jsonObj.connectedPlayerId;
@@ -197,12 +122,9 @@ function create () {
 
   //Bullets
   bullets = game.add.group();
-  bullets.enableBody = true;
-  bullets.physicsBodyType = Phaser.Physics.ARCADE;
-  bullets.createMultiple(bulletNumber, 'Bullet', 0, false);
+  bullets.createMultiple(1000, 'Bullet', 0, false);
   bullets.setAll('anchor.x', -0.3);
   bullets.setAll('anchor.y', 0.5);
-  bullets.callAll('body.setCircle', 'body', 15, -40, -5);
   //Physics
 
 
@@ -212,6 +134,24 @@ function create () {
   game.camera.follow(tank);
 
 }
+
+setInterval(function(){
+
+  if(connection && connection.readyState == WebSocket.OPEN){
+
+    player = {
+              "isFiring": isFiring,
+              "isAccelerating": isAccelerating,
+              "isRotatingLeft": isRotatingLeft,
+              "isRotatingRight": isRotatingRight,
+              "mouseX": game.input.mousePointer.x + game.camera.x,
+              "mouseY": game.input.mousePointer.y + game.camera.y
+    };
+    connection.send("getGameStatus;" + JSON.stringify(player));
+    time = date.getTime();
+  }
+
+}, 20);
 
 
 function update () {
@@ -307,37 +247,14 @@ function update () {
 
 }
 
-function fire () {
-
-  if (game.time.now > nextFire && bulletNumber > 0){
-
-    nextFire = game.time.now + fireRate;
-    var bullet = bullets.getFirstExists(false);
-    bullet.reset(turret.x, turret.y);
-    bullet.rotation = game.physics.arcade.moveToPointer(bullet, 2000, game.input.activePointer);
-    bulletNumber -= 1;
-  }
-}
-
 
 function render () {
 
-  game.debug.text('FPS: ' + game.time.fps + '  Bullets: ' + bulletNumber + '  ' + id, 50, 50);
+  game.debug.text('FPS: ' + game.time.fps + ' Ping: ' + ping + ' ID: ' + id ,50, 50);
   game.debug.text('X: ' + tank.x + '   Y: ' + tank.y, 50, 70);
 
-  /*game.debug.body(enemy.tank);
-  game.debug.body(tank);
-  bullets.forEachAlive(renderGroup, this);*/
 }
 
-function renderGroup(member) {
-  game.debug.body(member);
-}
-
-function damage(){
-
-  console.log("damage");
-}
 
 function executeJSON(json){
 
@@ -352,18 +269,33 @@ function executeJSON(json){
 
     playerNumber = json.playerNumber;
   }
+  else if(json.playerNumber < playerNumber){ // WHEN A PLAYER DISCONNECTS, IT WILL BE REMOVED FROM THE GAME
 
-  for(var i = 0 ; i < json.players.length ; i++){
-    if(json.players[i].fire == true){
-      if(json.players[i].id == id){
-        fire();
+    for(var i = 0 ; i < enemies.length ; i++){
+      var found = false;
+      for(var j = 0 ; j < json.playerNumber ; j++){
+
+        if(enemies[i].id == json.players[j].id){
+          found = true;
+        }
       }
-      else{
-        enemies[i].mouseX = json.players[i].mouseX;
-        enemies[i].mouseY = json.players[i].mouseY;
-        enemies[i].fire();
+      if(!found){
+
+        enemies[i].tank.kill();
+        enemies[i].turret.kill();
+        for(var k = i ; k < enemies.length - 1 ; k++){
+          enemies[k] = enemies[k + 1];
+        }
+
+        continue;
       }
     }
+
+    playerNumber = json.playerNumber;
+  }
+
+  for(var i = 0 ; i < json.players.length ; i++){
+
 
     if(json.players[i].id == id){
       bulletNumber = json.players[i].bulletNumber;
@@ -384,5 +316,14 @@ function executeJSON(json){
       enemies[i].tank.angle = json.players[i].angle;
 
     }
+  }
+
+ bullets.resetAll(-5000, -5000);
+
+ for(var i = 0 ; i < json.bullets.length ; i++){
+
+   var bullet = bullets.children[i];
+   bullet.reset(json.bullets[i].x, json.bullets[i].y);
+   bullet.angle = json.bullets[i].angle - 90;
   }
 }

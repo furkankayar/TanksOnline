@@ -59,6 +59,7 @@ public class WebSocket{
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         logger.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
+        WebSocketServer.players.remove(this.player);
     }
 
 
