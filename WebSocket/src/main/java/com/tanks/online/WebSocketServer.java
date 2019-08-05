@@ -59,6 +59,16 @@ public class WebSocketServer {
       playerStatus.addProperty("angle", player.getAngle());
       playerStatus.addProperty("turretAngle", player.getTurretAngle());
 
+      double[] coordinates = player.getHitboxCoordinates();
+      playerStatus.addProperty("nwX", coordinates[0]);
+      playerStatus.addProperty("nwY", coordinates[1]);
+      playerStatus.addProperty("neX", coordinates[2]);
+      playerStatus.addProperty("neY", coordinates[3]);
+      playerStatus.addProperty("swX", coordinates[4]);
+      playerStatus.addProperty("swY", coordinates[5]);
+      playerStatus.addProperty("seX", coordinates[6]);
+      playerStatus.addProperty("seY", coordinates[7]);
+
 
       for(Bullet bullet : player.getFiredBullets()){
         JsonObject bulletStatus = new JsonObject();

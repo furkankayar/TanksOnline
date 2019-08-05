@@ -2,6 +2,7 @@ package com.tanks.online.Components;
 
 import com.tanks.online.Physics.Body;
 import com.tanks.online.Physics.Engine;
+import com.tanks.online.Physics.Hitbox;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,19 +30,21 @@ public class Player extends Body{
   private float mouseY;
 
   private Engine engine;
+  private Hitbox hitbox;
   private List<Bullet> firedBullets;
 
   public Player(String id, Engine engine){
 
     super(engine.getWorld());
     this.engine = engine;
+    this.hitbox = Hitbox.getInstance();
     this.id = id;
     this.firing = false;
     this.fireRate = 100;
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
     this.firedBullets = Collections.synchronizedList(new ArrayList<Bullet>());
     com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
-    this.setSize(100, 100);
+    this.setSize(75, 120);
     this.setLocation(Math.random() * 300, Math.random() * 300);
 
   }
@@ -95,6 +98,11 @@ public class Player extends Body{
   public boolean isRotatingRight(){
 
     return this.rotatingRight;
+  }
+
+  public double[] getHitboxCoordinates(){
+
+    return this.hitbox.getCornerPositions(this.x, this.y, this.length, this.height, this.angle, -4, -28);
   }
 
   public void fireBullet(){

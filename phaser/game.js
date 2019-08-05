@@ -73,6 +73,20 @@ var time;
 var ping;
 
 
+var nwX;
+var nwY;
+var neX;
+var neY;
+var swX;
+var swY;
+var seX;
+var seY;
+
+var txnw ;
+var txne ;
+var txsw ;
+var txse ;
+var txctr;
 
 function create () {
 
@@ -114,7 +128,7 @@ function create () {
   tank = game.add.sprite(0, 0, 'Hull_Color_D_01');
   turret = game.add.sprite(0, 0, 'Turret_Color_D_01');
   tank.scale.setTo(0.5);
-  tank.anchor.setTo(0.5, 0.65);
+  tank.anchor.setTo(0.5, 0.5);
   turret.scale.setTo(0.5);
   turret.anchor.setTo(0.45, 0.80);
 
@@ -132,6 +146,12 @@ function create () {
 
 
   game.camera.follow(tank);
+
+  txnw = game.add.text(nwX, nwY, '.', {fill : 'white'});
+  txne = game.add.text(neX, neY, '.', {fill : 'white'});
+  txsw = game.add.text(swX, swY, '.', {fill : 'white'});
+  txse = game.add.text(seX, seY, '.', {fill : 'white'});
+  txctr = game.add.text(tank.x, tank.y, '*', {fill: 'white'});
 
 }
 
@@ -156,8 +176,19 @@ setInterval(function(){
 
 function update () {
 
-  turret.x = tank.x;
-  turret.y = tank.y;
+  txnw.x = nwX;
+  txnw.y = nwY;
+  txne.x = neX;
+  txne.y = neY;
+  txsw.x = swX;
+  txsw.y = swY;
+  txse.x = seX;
+  txse.y = seY;
+  txctr.x = tank.x;
+  txctr.y = tank.y;
+
+  turret.x = tank.x - 20 * Math.sin(tank.angle * 3.14 / 180);
+  turret.y = tank.y + 20 * Math.cos(tank.angle * 3.14 / 180);
   background.tilePosition.x = -game.camera.x;
   background.tilePosition.y = -game.camera.y;
 
@@ -305,6 +336,16 @@ function executeJSON(json){
       turret.y = tank.y;
       turret.angle = json.players[i].turretAngle;
       tank.angle = json.players[i].angle;
+
+      nwX = json.players[i].nwX;
+      nwY = json.players[i].nwY;
+      neX = json.players[i].neX;
+      neY = json.players[i].neY;
+      swX = json.players[i].swX;
+      swY = json.players[i].swY;
+      seX = json.players[i].seX;
+      seY = json.players[i].seY;
+
     }
     else{
       enemies[i].bulletNumber = json.players[i].bulletNumber;
