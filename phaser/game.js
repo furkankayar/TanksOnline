@@ -11,7 +11,7 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
   this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_A_01');
 
   this.tank.scale.setTo(0.5);
-  this.tank.anchor.setTo(0.5, 0.65);
+  this.tank.anchor.setTo(0.5, 0.5);
   this.turret.scale.setTo(0.5);
   this.turret.anchor.setTo(0.45, 0.80);
 
@@ -24,8 +24,6 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
 
 EnemyTank.prototype.update = function(){
 
-  this.turret.x = this.tank.x;
-  this.turret.y = this.tank.y;
 }
 
 
@@ -139,7 +137,7 @@ function create () {
   bullets.createMultiple(1000, 'Bullet', 0, false);
   bullets.setAll('anchor.x', -0.3);
   bullets.setAll('anchor.y', 0.5);
-  //Physics
+
 
 
   directions = game.input.keyboard.createCursorKeys();
@@ -187,8 +185,7 @@ function update () {
   txctr.x = tank.x;
   txctr.y = tank.y;
 
-  turret.x = tank.x - 20 * Math.sin(tank.angle * 3.14 / 180);
-  turret.y = tank.y + 20 * Math.cos(tank.angle * 3.14 / 180);
+
   background.tilePosition.x = -game.camera.x;
   background.tilePosition.y = -game.camera.y;
 
@@ -227,55 +224,6 @@ function update () {
 
     isFiring = false;
   }
-
-/*  enemies.forEach(function(item){
-    item.update();
-  });
-
-
-  if (directions.left.isDown){
-    tank.angle -= 3;
-  }
-  else if (directions.right.isDown){
-    tank.angle += 3;
-  }
-
-  if (directions.up.isDown){
-    currentSpeed = 500;
-  }
-  else if(directions.down.isDown && currentSpeed >= 50){
-    currentSpeed -= 50;
-  }
-  else{
-    if (currentSpeed > 0){
-      currentSpeed -= 5; // Slow smoothly
-    }
-    else if (currentSpeed < 0){
-      currentSpeed = 0;
-    }
-  }
-
-  if (currentSpeed > 0){
-    game.physics.arcade.velocityFromRotation(tank.rotation - 1.6, currentSpeed, tank.body.velocity);
-  }
-
-
-  if (game.input.activePointer.isDown){
-
-    isFiring = true;
-  }
-  else{
-    isFiring = false;
-  }
-
-  turret.x = tank.x;
-  turret.y = tank.y;
-  background.tilePosition.x = -game.camera.x;
-  background.tilePosition.y = -game.camera.y;
-
-
-  turret.rotation = game.physics.arcade.angleToPointer(turret) + 1.54;*/
-
 }
 
 
@@ -332,9 +280,9 @@ function executeJSON(json){
       bulletNumber = json.players[i].bulletNumber;
       tank.x = json.players[i].positionX;
       tank.y = json.players[i].positionY;
-      turret.x = tank.x;
-      turret.y = tank.y;
       turret.angle = json.players[i].turretAngle;
+      turret.x = json.players[i].turretX;
+      turret.y = json.players[i].turretY;
       tank.angle = json.players[i].angle;
 
       nwX = json.players[i].nwX;
@@ -351,8 +299,8 @@ function executeJSON(json){
       enemies[i].bulletNumber = json.players[i].bulletNumber;
       enemies[i].tank.x = json.players[i].positionX;
       enemies[i].tank.y = json.players[i].positionY;
-      enemies[i].turret.x = enemies[i].tank.x;
-      enemies[i].turret.y = enemies[i].tank.y;
+      enemies[i].turret.x = json.players[i].turretX;
+      enemies[i].turret.y = json.players[i].turretY;
       enemies[i].turret.angle = json.players[i].turretAngle;
       enemies[i].tank.angle = json.players[i].angle;
 

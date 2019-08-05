@@ -2,6 +2,7 @@ package com.tanks.online.Physics;
 
 import com.tanks.online.Components.Player;
 import com.tanks.online.Components.Bullet;
+import com.tanks.online.Components.Turret;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,17 +38,7 @@ public class Engine extends Thread{
 
     for(Player player: this.players){
 
-      player.setTurretAngle((int)(Math.toDegrees(Math.atan2(player.getMouseY() - player.getY(), player.getMouseX() - player.getX()))) + 90);
-
-      double[] coordinates = player.getHitboxCoordinates();
-    /*  System.out.println("nwX " + coordinates[0] +
-                       "\nnwY " + coordinates[1] +
-                       "\nneX " + coordinates[2] +
-                       "\nneY " + coordinates[3] +
-                       "\nswX " + coordinates[4] +
-                       "\nswY " + coordinates[5] +
-                       "\nseX " + coordinates[6] +
-                       "\nseY " + coordinates[7] + "\n---------------------------\n");*/
+      player.fixTurret();
 
       if(player.isAccelerating())
         player.velocityFromAngle();

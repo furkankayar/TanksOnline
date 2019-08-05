@@ -24,7 +24,8 @@ public class Player extends Body{
   private int bulletNumber;
   private int fireRate;
   private long nextFire;
-  private int turretAngle;
+
+  private Turret turret;
 
   private float mouseX;
   private float mouseY;
@@ -38,6 +39,7 @@ public class Player extends Body{
     super(engine.getWorld());
     this.engine = engine;
     this.hitbox = Hitbox.getInstance();
+    this.turret = new Turret();
     this.id = id;
     this.firing = false;
     this.fireRate = 100;
@@ -59,11 +61,10 @@ public class Player extends Body{
     return this.mouseY;
   }
 
-  public float getTurretAngle(){
+  public Turret getTurret(){
 
-    return this.turretAngle;
+    return this.turret;
   }
-
 
   public String getData(){
 
@@ -109,9 +110,16 @@ public class Player extends Body{
 
     if(this.bulletNumber > 0 && System.currentTimeMillis() > this.nextFire){
       this.nextFire = System.currentTimeMillis() + this.fireRate;
-      Bullet bullet = new Bullet(this.engine.getWorld(), this.turretAngle, this.bulletNumber--, this.x, this.y);
+      Bullet bullet = new Bullet(this.engine.getWorld(), this.turret.getAngle(), this.bulletNumber--, this.turret.getX(), this.turret.getY());
       firedBullets.add(bullet);
     }
+  }
+
+  public void fixTurret(){
+
+    this.turret.setAngle((int)(Math.toDegrees(Math.atan2(this.mouseY - this.turret.getY(), this.mouseX - this.turret.getX()))) + 90);
+    turret.setX(this.x - 20 * Math.sin(Math.toRadians(this.angle)));
+    turret.setY(this.y + 20 * Math.cos(Math.toRadians(this.angle)));
   }
 
   public List<Bullet> getFiredBullets(){
@@ -165,11 +173,6 @@ public class Player extends Body{
   public void setBulletNumber(int bulletNumber){
 
     this.bulletNumber = bulletNumber;
-  }
-
-  public void setTurretAngle(int turretAngle){
-
-    this.turretAngle = turretAngle;
   }
 
 
