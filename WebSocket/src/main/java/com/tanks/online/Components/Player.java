@@ -25,6 +25,7 @@ public class Player extends Body{
   private int fireRate;
   private long nextFire;
 
+
   private Turret turret;
 
   private float mouseX;
@@ -43,6 +44,7 @@ public class Player extends Body{
     this.id = id;
     this.firing = false;
     this.fireRate = 100;
+    this.velocity = 4;
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
     this.firedBullets = Collections.synchronizedList(new ArrayList<Bullet>());
     com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
@@ -100,6 +102,7 @@ public class Player extends Body{
 
     return this.rotatingRight;
   }
+
 
   public double[] getHitboxCoordinates(){
 
@@ -174,6 +177,8 @@ public class Player extends Body{
 
     this.bulletNumber = bulletNumber;
   }
+
+
 
 
 }

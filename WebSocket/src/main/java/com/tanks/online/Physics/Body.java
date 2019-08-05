@@ -13,6 +13,7 @@ public class Body{
   protected int velocity;
   protected float rotation;
   protected int angle;
+  private long lastUpdateTime;
 
   protected int[] worldBounds;
 
@@ -56,6 +57,11 @@ public class Body{
     this.velocity = velocity;
   }
 
+  public void setLastUpdateTime(long lastUpdateTime){
+
+    this.lastUpdateTime = lastUpdateTime;
+  }
+
   public int getAngle(){
 
     return this.angle;
@@ -65,6 +71,12 @@ public class Body{
 
     return this.x;
   }
+
+  public long getLastUpdateTime(){
+
+    return this.lastUpdateTime;
+  }
+
 
   public double getY(){
 
@@ -130,6 +142,11 @@ public class Body{
   public void rotateLeft(){
 
     this.angle -= 1;
+  }
+
+  public int getTiming(){
+
+    return 10 - this.velocity;
   }
 
 }

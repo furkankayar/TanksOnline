@@ -40,23 +40,31 @@ public class Engine extends Thread{
 
       player.fixTurret();
 
-      if(player.isAccelerating())
-        player.velocityFromAngle();
+      if(System.currentTimeMillis() >= player.getLastUpdateTime() + player.getTiming()){
+        if(player.isAccelerating())
+          player.velocityFromAngle();
 
+        if(player.isRotatingLeft())
+          player.rotateLeft();
+        else if(player.isRotatingRight())
+          player.rotateRight();
 
-      if(player.isRotatingLeft())
-        player.rotateLeft();
-      else if(player.isRotatingRight())
-        player.rotateRight();
+        player.setLastUpdateTime(System.currentTimeMillis());
+      }
 
       if(player.isFiring())
         player.fireBullet();
 
       int[] worldBounds = this.world.getBounds();
+
+
       for(Bullet bullet : player.getFiredBullets()){
 
-        bullet.velocityFromAngle();
+        if(System.currentTimeMillis() >= bullet.getLastUpdateTime() + bullet.getTiming()){
 
+          bullet.velocityFromAngle();
+          bullet.setLastUpdateTime(System.currentTimeMillis());
+        }
         if(bullet.getX() > worldBounds[0] + worldBounds[2] || bullet.getX() < worldBounds[0] ||
            bullet.getY() > worldBounds[1] + worldBounds[3] || bullet.getY() < worldBounds[1])
            player.removeFiredBullet(bullet);
@@ -70,7 +78,6 @@ public class Engine extends Thread{
     while(true){
       try{
         this.update();
-        Thread.sleep(5);
       }
       catch(ConcurrentModificationException ex){
 
