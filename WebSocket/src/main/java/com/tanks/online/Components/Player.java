@@ -83,6 +83,11 @@ public class Player extends Body{
     return this.bulletNumber;
   }
 
+  public double getHitboxArea(){
+
+    return this.length * this.height;
+  }
+
   public boolean isFiring(){
 
     return this.firing;

@@ -16,8 +16,8 @@ EnemyTank = function(index, game, bullets, coordX, coordY){
   this.turret.anchor.setTo(0.45, 0.80);
 
   game.world.bringToTop(this.tank);
-  game.world.bringToTop(this.turret);
   game.world.bringToTop(tank);
+  game.world.bringToTop(this.turret);
   game.world.bringToTop(turret);
 
 }
