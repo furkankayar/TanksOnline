@@ -47,6 +47,7 @@ function preload () {
   game.load.image('Turret_Color_A_01', './Assets/PNG/Weapon_Color_A/Gun_01.png');
   game.load.image('Turret_Color_D_01', './Assets/PNG/Weapon_Color_D/Gun_01.png');
   game.load.image('Background', './Assets/background.png');
+//  game.load.image('Background', './Assets/background2.jpg');
   game.load.image('Bullet', './Assets/PNG/Effects/Plasma.png');
 
 }
@@ -120,8 +121,8 @@ function create () {
 
   game.world.setBounds(-2000, -2000, 4000, 4000);
   game.time.slowMotion = 1;
-  background = game.add.tileSprite(0, 0, 1600, 900, 'Background');
-  background.fixedToCamera = true;
+  background = game.add.tileSprite(-2000, -2000, 3840, 3840, 'Background');
+//  background.fixedToCamera = true;
 
   tank = game.add.sprite(0, 0, 'Hull_Color_D_01');
   turret = game.add.sprite(0, 0, 'Turret_Color_D_01');
@@ -129,7 +130,7 @@ function create () {
   tank.anchor.setTo(0.5, 0.5);
   turret.scale.setTo(0.5);
   turret.anchor.setTo(0.45, 0.80);
-
+//  tank.fixedToCamera = true;
 
 
   //Bullets
@@ -143,7 +144,7 @@ function create () {
   directions = game.input.keyboard.createCursorKeys();
 
 
-  game.camera.follow(tank);
+  //game.camera.follow(tank);
 
   txnw = game.add.text(nwX, nwY, '.', {fill : 'white'});
   txne = game.add.text(neX, neY, '.', {fill : 'white'});
@@ -185,9 +186,8 @@ function update () {
   txctr.x = tank.x;
   txctr.y = tank.y;
 
-
-  background.tilePosition.x = -game.camera.x;
-  background.tilePosition.y = -game.camera.y;
+  game.camera.x = tank.x + 50 * Math.sin(turret.angle * 3.14 / 180) - 800;
+  game.camera.y = tank.y - 50 * Math.cos(turret.angle * 3.14 / 180) - 450;
 
   if(directions.up.isDown){
 
