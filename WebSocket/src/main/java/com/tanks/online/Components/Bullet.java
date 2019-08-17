@@ -14,7 +14,7 @@ public class Bullet extends Body{
     this.id = id;
     this.x = x;
     this.y = y;
-    this.velocity = 8;
+    this.velocity = 25.0f;
   }
 
 
@@ -31,8 +31,8 @@ public class Bullet extends Body{
   @Override
   public void velocityFromAngle(){
 
-    this.x +=  Math.sin(Math.toRadians(this.angle)) * 3;
-    this.y -= Math.cos(Math.toRadians(this.angle)) * 3;
+    this.x +=  Math.sin(Math.toRadians(this.angle)) * this.velocity;
+    this.y -= Math.cos(Math.toRadians(this.angle)) * this.velocity;
 
   }
 }

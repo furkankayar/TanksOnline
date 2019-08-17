@@ -20,12 +20,14 @@ public class Player extends Body{
   private boolean accelerating;
   private boolean rotatingLeft;
   private boolean rotatingRight;
+  private boolean alive;
 
   private int bulletNumber;
   private int fireRate;
+  private float maxVelocity;
   private long nextFire;
 
-
+  private int health;
   private Turret turret;
 
   private float mouseX;
@@ -44,12 +46,15 @@ public class Player extends Body{
     this.id = id;
     this.firing = false;
     this.fireRate = 100;
-    this.velocity = 4;
+    this.health = 100;
+    this.alive = true;
+    this.velocity = 0.00f;
+    this.maxVelocity = 10.00f;
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
     this.firedBullets = Collections.synchronizedList(new ArrayList<Bullet>());
     com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
     this.setSize(75, 120);
-    this.setLocation(Math.random() * 300, Math.random() * 300);
+    this.setLocation(Math.random() * 500, Math.random() * 500);
 
   }
 
@@ -108,6 +113,11 @@ public class Player extends Body{
     return this.rotatingRight;
   }
 
+  public boolean isAlive(){
+
+    return this.alive;
+  }
+
 
   public double[] getHitboxCoordinates(){
 
@@ -118,7 +128,7 @@ public class Player extends Body{
 
     if(this.bulletNumber > 0 && System.currentTimeMillis() > this.nextFire){
       this.nextFire = System.currentTimeMillis() + this.fireRate;
-      Bullet bullet = new Bullet(this.engine.getWorld(), this.turret.getAngle(), this.bulletNumber--, this.turret.getX(), this.turret.getY());
+      Bullet bullet = new Bullet(this.engine.getWorld(), this.turret.getAngle(), this.bulletNumber--, this.turret.getX() + Math.sin(Math.toRadians(this.turret.getAngle())) * 100, this.turret.getY() - Math.cos(Math.toRadians(this.turret.getAngle())) * 100);
       firedBullets.add(bullet);
     }
   }
@@ -168,6 +178,26 @@ public class Player extends Body{
 
   public void setAccelerating(Boolean accelerating){
     this.accelerating = accelerating;
+    if(accelerating){
+      if(this.velocity < this.maxVelocity)
+        this.velocity += 0.10f;
+    }
+    else{
+      if(this.velocity > 0.01f)
+        this.velocity -= 0.10f;
+    }
+  }
+
+  public void setReverseAccelerating(Boolean accelerating){
+    this.accelerating = accelerating;
+    if(accelerating){
+      if(this.velocity > -1 * this.maxVelocity)
+        this.velocity -= 0.10f;
+    }
+    else{
+      if(this.velocity < -0.01f)
+        this.velocity += 0.10f;
+    }
   }
 
   public void setRotatingLeft(Boolean rotatingLeft){
@@ -183,7 +213,17 @@ public class Player extends Body{
     this.bulletNumber = bulletNumber;
   }
 
+  public void setAlive(boolean alive){
 
+    this.alive = alive;
+  }
 
+  public void damage(int value){
+
+    this.health -= value;
+    if(this.health <= 0){
+      this.alive = false;
+    }
+  }
 
 }

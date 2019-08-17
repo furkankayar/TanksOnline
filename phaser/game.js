@@ -1,7 +1,7 @@
 
-EnemyTank = function(index, game, bullets, coordX, coordY){
+EnemyTank = function(id, game, bullets, coordX, coordY){
 
-
+  this.id = id;
   this.mouseX = 0;
   this.mouseY = 0;
 
@@ -46,8 +46,8 @@ function preload () {
   game.load.image('Hull_Color_D_01', './Assets/PNG/Hulls_Color_D/Hull_01.png');
   game.load.image('Turret_Color_A_01', './Assets/PNG/Weapon_Color_A/Gun_01.png');
   game.load.image('Turret_Color_D_01', './Assets/PNG/Weapon_Color_D/Gun_01.png');
-  game.load.image('Background', './Assets/background.png');
-//  game.load.image('Background', './Assets/background2.jpg');
+//  game.load.image('Background', './Assets/background.png');
+  game.load.image('Background', './Assets/background3.png');
   game.load.image('Bullet', './Assets/PNG/Effects/Plasma.png');
 
 }
@@ -58,6 +58,7 @@ var tank;
 
 var isFiring = false;
 var isAccelerating = false;
+var isReverseAccelerating = false;
 var isRotatingLeft = false;
 var isRotatingRight = false;
 
@@ -70,6 +71,7 @@ var bullets = [];
 var date = new Date();
 var time;
 var ping;
+var canPlay = true;
 
 
 var nwX;
@@ -86,6 +88,9 @@ var txne ;
 var txsw ;
 var txse ;
 var txctr;
+
+
+// RENDER //
 
 function create () {
 
@@ -121,7 +126,7 @@ function create () {
 
   game.world.setBounds(-2000, -2000, 4000, 4000);
   game.time.slowMotion = 1;
-  background = game.add.tileSprite(-2000, -2000, 3840, 3840, 'Background');
+  background = game.add.tileSprite(-2000, -2000, 4000, 4000, 'Background');
 //  background.fixedToCamera = true;
 
   tank = game.add.sprite(0, 0, 'Hull_Color_D_01');
@@ -136,22 +141,29 @@ function create () {
   //Bullets
   bullets = game.add.group();
   bullets.createMultiple(1000, 'Bullet', 0, false);
-  bullets.setAll('anchor.x', -0.3);
+  bullets.setAll('anchor.x', 0.5);
   bullets.setAll('anchor.y', 0.5);
 
 
 
   directions = game.input.keyboard.createCursorKeys();
+  wasdKeys = {"A": game.input.keyboard.addKey(Phaser.Keyboard.A),
+              "W": game.input.keyboard.addKey(Phaser.Keyboard.W) ,
+              "D": game.input.keyboard.addKey(Phaser.Keyboard.D) ,
+              "S": game.input.keyboard.addKey(Phaser.Keyboard.S)};
+
+  this.game.renderer.renderSession.roundPixels = true; // I don't know if it works, will be checked later.
 
 
-  //game.camera.follow(tank);
+// RENDER //
 
-  txnw = game.add.text(nwX, nwY, '.', {fill : 'white'});
+  /*txnw = game.add.text(nwX, nwY, '.', {fill : 'white'});
   txne = game.add.text(neX, neY, '.', {fill : 'white'});
   txsw = game.add.text(swX, swY, '.', {fill : 'white'});
   txse = game.add.text(seX, seY, '.', {fill : 'white'});
-  txctr = game.add.text(tank.x, tank.y, '*', {fill: 'white'});
+  txctr = game.add.text(tank.x, tank.y, '*', {fill: 'white'});*/
 
+// RENDER //
 }
 
 setInterval(function(){
@@ -161,6 +173,7 @@ setInterval(function(){
     player = {
               "isFiring": isFiring,
               "isAccelerating": isAccelerating,
+              "isReverseAccelerating": isReverseAccelerating,
               "isRotatingLeft": isRotatingLeft,
               "isRotatingRight": isRotatingRight,
               "mouseX": game.input.mousePointer.x + game.camera.x,
@@ -170,12 +183,12 @@ setInterval(function(){
     time = date.getTime();
   }
 
-}, 20);
+}, 16.667);
 
 
 function update () {
 
-  txnw.x = nwX;
+/*  txnw.x = nwX;
   txnw.y = nwY;
   txne.x = neX;
   txne.y = neY;
@@ -184,12 +197,12 @@ function update () {
   txse.x = seX;
   txse.y = seY;
   txctr.x = tank.x;
-  txctr.y = tank.y;
+  txctr.y = tank.y;*/
 
   game.camera.x = tank.x + 50 * Math.sin(turret.angle * 3.14 / 180) - 800;
   game.camera.y = tank.y - 50 * Math.cos(turret.angle * 3.14 / 180) - 450;
 
-  if(directions.up.isDown){
+  if(directions.up.isDown || wasdKeys.W.isDown){
 
     isAccelerating = true;
   }
@@ -198,7 +211,16 @@ function update () {
     isAccelerating = false;
   }
 
-  if(directions.left.isDown){
+  if(directions.down.isDown || wasdKeys.S.isDown){
+
+    isReverseAccelerating = true;
+  }
+  else{
+
+    isReverseAccelerating = false;
+  }
+
+  if(directions.left.isDown || wasdKeys.A.isDown){
 
     isRotatingLeft = true;
   }
@@ -207,7 +229,7 @@ function update () {
     isRotatingLeft = false;
   }
 
-  if(directions.right.isDown){
+  if(directions.right.isDown || wasdKeys.D.isDown){
 
     isRotatingRight = true;
   }
@@ -232,12 +254,15 @@ function render () {
   game.debug.text('FPS: ' + game.time.fps + ' Ping: ' + ping + ' ID: ' + id ,50, 50);
   game.debug.text('X: ' + tank.x + '   Y: ' + tank.y, 50, 70);
 
+  if(!canPlay){
+    game.debug.text('You Are Dead!!', 700, 430, 'white',  '36px Courier');
+  }
 }
 
 
 function executeJSON(json){
 
-  if(json.playerNumber > playerNumber){
+  /*if(json.playerNumber > playerNumber){
 
     for(var i = 0 ; i < json.players.length ; i++){
       if(id != json.players[i].id){
@@ -247,36 +272,64 @@ function executeJSON(json){
     }
 
     playerNumber = json.playerNumber;
-  }
-  else if(json.playerNumber < playerNumber){ // WHEN A PLAYER DISCONNECTS, IT WILL BE REMOVED FROM THE GAME
+  }*/
+/*  if(json.playerNumber > playerNumber){
 
-    for(var i = 0 ; i < enemies.length ; i++){
+    for(var i = 0 ; i < json.players.length ; i++){
+
+      if(id == json.players[i].id){
+        continue;
+      }
+
       var found = false;
-      for(var j = 0 ; j < json.playerNumber ; j++){
-
-        if(enemies[i].id == json.players[j].id){
+      for(var k = 0 ; k < enemies.length ; k++){
+        if(enemies[k].id == json.players[i].id){
           found = true;
         }
       }
+
       if(!found){
+        enemies[i] = new EnemyTank(json.players[i].id, game, null, json.players[i].positionX, json.players[i].positionY);
+      }
 
-        enemies[i].tank.kill();
-        enemies[i].turret.kill();
-        for(var k = i ; k < enemies.length - 1 ; k++){
-          enemies[k] = enemies[k + 1];
-        }
+      playerNumber = json.playerNumber;
+    }
+  }*/
 
+  console.log(json);
+  console.log(enemies);
+  if(json.playerNumber > playerNumber){
+
+    for(var i = 0 ; i < json.players.length ; i++){
+
+      if(id == json.players[i].id){
         continue;
       }
-    }
 
-    playerNumber = json.playerNumber;
+      var found = false;
+      for(var k = 0 ; k < enemies.length ; k++){
+        if(enemies[k].id == json.players[i].id){
+          found = true;
+        }
+      }
+
+      if(!found){
+        enemies[enemies.length] = new EnemyTank(json.players[i].id, game, null, json.players[i].positionX, json.players[i].positionY);
+        playerNumber += 1;
+      }
+    }
   }
+
 
   for(var i = 0 ; i < json.players.length ; i++){
 
-
     if(json.players[i].id == id){
+
+      if(!json.players[i].isAlive && canPlay){
+        tank.kill();
+        turret.kill();
+        canPlay = false;
+      }
       bulletNumber = json.players[i].bulletNumber;
       tank.x = json.players[i].positionX;
       tank.y = json.players[i].positionY;
@@ -296,23 +349,35 @@ function executeJSON(json){
 
     }
     else{
-      enemies[i].bulletNumber = json.players[i].bulletNumber;
-      enemies[i].tank.x = json.players[i].positionX;
-      enemies[i].tank.y = json.players[i].positionY;
-      enemies[i].turret.x = json.players[i].turretX;
-      enemies[i].turret.y = json.players[i].turretY;
-      enemies[i].turret.angle = json.players[i].turretAngle;
-      enemies[i].tank.angle = json.players[i].angle;
 
+      for(var k = 0 ; k < enemies.length ; k++){
+
+        if(enemies[k].id == json.players[i].id){
+
+          if(!json.players[i].isAlive){
+            enemies[k].tank.kill();
+            enemies[k].turret.kill();
+          }
+          else{
+            enemies[k].bulletNumber = json.players[i].bulletNumber;
+            enemies[k].tank.x = json.players[i].positionX;
+            enemies[k].tank.y = json.players[i].positionY;
+            enemies[k].turret.x = json.players[i].turretX;
+            enemies[k].turret.y = json.players[i].turretY;
+            enemies[k].turret.angle = json.players[i].turretAngle;
+            enemies[k].tank.angle = json.players[i].angle;
+          }
+        }
+      }
     }
   }
 
- bullets.resetAll(-5000, -5000);
+  bullets.resetAll(-5000, -5000);
 
- for(var i = 0 ; i < json.bullets.length ; i++){
+  for(var i = 0 ; i < json.bullets.length ; i++){
 
-   var bullet = bullets.children[i];
-   bullet.reset(json.bullets[i].x, json.bullets[i].y);
-   bullet.angle = json.bullets[i].angle - 90;
+    var bullet = bullets.children[i];
+    bullet.reset(json.bullets[i].x, json.bullets[i].y);
+    bullet.angle = json.bullets[i].angle;
   }
 }

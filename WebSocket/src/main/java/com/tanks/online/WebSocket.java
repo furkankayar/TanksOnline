@@ -59,7 +59,7 @@ public class WebSocket{
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
         logger.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
-        WebSocketServer.players.remove(this.player);
+        player.setAlive(false);
         WebSocketServer.physicsEngine.getPlayers().remove(this.player);
     }
 
@@ -71,6 +71,7 @@ public class WebSocket{
       player.setMouseX(root.get("mouseX").getAsFloat());
       player.setMouseY(root.get("mouseY").getAsFloat());
       player.setAccelerating(root.get("isAccelerating").getAsBoolean());
+      player.setReverseAccelerating(root.get("isReverseAccelerating").getAsBoolean());
       player.setRotatingLeft(root.get("isRotatingLeft").getAsBoolean());
       player.setRotatingRight(root.get("isRotatingRight").getAsBoolean());
       player.setFiring(root.get("isFiring").getAsBoolean());

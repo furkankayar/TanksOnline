@@ -60,6 +60,7 @@ public class WebSocketServer {
       playerStatus.addProperty("turretAngle", player.getTurret().getAngle());
       playerStatus.addProperty("turretX", player.getTurret().getX());
       playerStatus.addProperty("turretY", player.getTurret().getY());
+      playerStatus.addProperty("isAlive", player.isAlive());
 
       double[] coordinates = player.getHitboxCoordinates();
       playerStatus.addProperty("nwX", coordinates[0]);

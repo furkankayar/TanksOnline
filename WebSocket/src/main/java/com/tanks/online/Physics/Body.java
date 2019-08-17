@@ -10,7 +10,7 @@ public class Body{
   protected int length;
   protected int height;
 
-  protected int velocity;
+  protected float velocity;
   protected float rotation;
   protected int angle;
   private long lastUpdateTime;
@@ -52,7 +52,7 @@ public class Body{
     this.rotation = rotation;
   }
 
-  public void setVelocity(int velocity){
+  public void setVelocity(float velocity){
 
     this.velocity = velocity;
   }
@@ -88,7 +88,7 @@ public class Body{
     return this.rotation;
   }
 
-  public int getVelocity(){
+  public float getVelocity(){
 
     return this.velocity;
   }
@@ -105,15 +105,15 @@ public class Body{
 
   public void velocityFromAngle(){
 
-    double tempX = this.x + Math.sin(Math.toRadians(this.angle)) * 3;
-    double tempY = this.y - Math.cos(Math.toRadians(this.angle)) * 3;
+    double tempX = this.x + Math.sin(Math.toRadians(this.angle)) * this.velocity;
+    double tempY = this.y - Math.cos(Math.toRadians(this.angle)) * this.velocity;
 
 
-    if(tempX > this.worldBounds[0] && tempX + this.length < this.worldBounds[0] + this.worldBounds[2]){
+    if(tempX > this.worldBounds[0] && tempX < this.worldBounds[0] + this.worldBounds[2]){
       this.x = tempX;
     }
 
-    if(tempY > this.worldBounds[1] && tempY + this.height < this.worldBounds[1] + this.worldBounds[3]){
+    if(tempY > this.worldBounds[1] && tempY < this.worldBounds[1] + this.worldBounds[3]){
       this.y = tempY;
     }
   }
@@ -136,17 +136,17 @@ public class Body{
 
   public void rotateRight(){
 
-    this.angle += 1;
+    this.angle += 3;
   }
 
   public void rotateLeft(){
 
-    this.angle -= 1;
+    this.angle -= 3;
   }
 
-  public int getTiming(){
+  public double getTiming(){
 
-    return 10 - this.velocity;
+    return 16.667; // 1000 / 60 which means 60 frame calculation each second
   }
 
 }
