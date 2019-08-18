@@ -118,6 +118,11 @@ public class Player extends Body{
     return this.alive;
   }
 
+  public int getHealth(){
+
+    return this.health;
+  }
+
 
   public double[] getHitboxCoordinates(){
 

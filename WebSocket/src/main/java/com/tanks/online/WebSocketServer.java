@@ -61,6 +61,7 @@ public class WebSocketServer {
       playerStatus.addProperty("turretX", player.getTurret().getX());
       playerStatus.addProperty("turretY", player.getTurret().getY());
       playerStatus.addProperty("isAlive", player.isAlive());
+      playerStatus.addProperty("health", player.getHealth());
 
       double[] coordinates = player.getHitboxCoordinates();
       playerStatus.addProperty("nwX", coordinates[0]);

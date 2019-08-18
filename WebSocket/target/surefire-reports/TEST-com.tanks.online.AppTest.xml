@@ -32,7 +32,7 @@
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.class.version" value="52.0"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
-    <property name="os.version" value="5.2.7-200.fc30.x86_64"/>
+    <property name="os.version" value="5.2.8-200.fc30.x86_64"/>
     <property name="library.jansi.path" value="/usr/share/maven/lib/jansi-native"/>
     <property name="user.home" value="/home/furkan"/>
     <property name="user.timezone" value="Europe/Istanbul"/>

@@ -4,12 +4,12 @@ EnemyTank = function(id, game, bullets, coordX, coordY){
   this.id = id;
   this.mouseX = 0;
   this.mouseY = 0;
-
+  this.health = 0
   this.game = game;
 
   this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_A_01');
   this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_A_01');
-
+  this.healthBar = game.add.sprite(0, 0, 'HealthBar');
   this.tank.scale.setTo(0.5);
   this.tank.anchor.setTo(0.5, 0.5);
   this.turret.scale.setTo(0.5);
@@ -22,9 +22,6 @@ EnemyTank = function(id, game, bullets, coordX, coordY){
 
 }
 
-EnemyTank.prototype.update = function(){
-
-}
 
 
 var game = new Phaser.Game(1600, 900, Phaser.AUTO, 'phaser-example',
@@ -49,12 +46,15 @@ function preload () {
 //  game.load.image('Background', './Assets/background.png');
   game.load.image('Background', './Assets/background3.png');
   game.load.image('Bullet', './Assets/PNG/Effects/Plasma.png');
+  game.load.image('HealthBar', './Assets/healthbar.png');
 
 }
 
 var id;
 
 var tank;
+var healthBar;
+var health;
 
 var isFiring = false;
 var isAccelerating = false;
@@ -137,6 +137,8 @@ function create () {
   turret.anchor.setTo(0.45, 0.80);
 //  tank.fixedToCamera = true;
 
+  healthBar = game.add.sprite(0, 0, 'HealthBar');
+
 
   //Bullets
   bullets = game.add.group();
@@ -201,6 +203,8 @@ function update () {
 
   game.camera.x = tank.x + 50 * Math.sin(turret.angle * 3.14 / 180) - 800;
   game.camera.y = tank.y - 50 * Math.cos(turret.angle * 3.14 / 180) - 450;
+
+
 
   if(directions.up.isDown || wasdKeys.W.isDown){
 
@@ -296,8 +300,7 @@ function executeJSON(json){
     }
   }*/
 
-  console.log(json);
-  console.log(enemies);
+
   if(json.playerNumber > playerNumber){
 
     for(var i = 0 ; i < json.players.length ; i++){
@@ -328,6 +331,7 @@ function executeJSON(json){
       if(!json.players[i].isAlive && canPlay){
         tank.kill();
         turret.kill();
+        healthBar.kill();
         canPlay = false;
       }
       bulletNumber = json.players[i].bulletNumber;
@@ -337,6 +341,11 @@ function executeJSON(json){
       turret.x = json.players[i].turretX;
       turret.y = json.players[i].turretY;
       tank.angle = json.players[i].angle;
+      health = json.players[i].health;
+      healthBar.x = tank.x - 50;
+      healthBar.y = tank.y + 100;
+      healthBar.width = (health / 100) * 100;
+      healthBar.x += (100 - (health / 100) * 100 ) / 2;
 
       nwX = json.players[i].nwX;
       nwY = json.players[i].nwY;
@@ -357,6 +366,7 @@ function executeJSON(json){
           if(!json.players[i].isAlive){
             enemies[k].tank.kill();
             enemies[k].turret.kill();
+            enemies[k].healthBar.kill();
           }
           else{
             enemies[k].bulletNumber = json.players[i].bulletNumber;
@@ -366,6 +376,11 @@ function executeJSON(json){
             enemies[k].turret.y = json.players[i].turretY;
             enemies[k].turret.angle = json.players[i].turretAngle;
             enemies[k].tank.angle = json.players[i].angle;
+            enemies[k].health = json.players[i].health;
+            enemies[k].healthBar.x = enemies[k].tank.x - 50;
+            enemies[k].healthBar.y = enemies[k].tank.y + 100;
+            enemies[k].healthBar.width = (enemies[k].health / 100) * 100;
+            enemies[k].healthBar.x += (100 - (enemies[k].health / 100) * 100 ) / 2;
           }
         }
       }

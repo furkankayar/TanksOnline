@@ -70,6 +70,50 @@ public class Engine extends Thread{
           if(bullet.getX() > worldBounds[0] + worldBounds[2] || bullet.getX() < worldBounds[0] ||
             bullet.getY() > worldBounds[1] + worldBounds[3] || bullet.getY() < worldBounds[1])
             player.removeFiredBullet(bullet);
+        }
+
+        for(Player otherPlayer : this.players){
+
+          if(player != otherPlayer){
+
+            for(Bullet bullet : player.getFiredBullets()){
+
+              if(hitboxUtilities.isCollidingPlayerAndBullet(bullet, otherPlayer)){
+                player.removeFiredBullet(bullet);
+              }
+            }
+
+            if(canMove)
+              canMove = !hitboxUtilities.isCollidingTwoPlayers(player, otherPlayer);
+          }
+        }
+
+        if(!canMove){
+          player.setLocation(playerX, playerY);
+          player.setAngle(playerAngle);
+        }
+
+        player.fixTurret();
+
+        if(player.isFiring())
+          player.fireBullet();
+
+      }
+      else{
+
+        if(player.getFiredBullets().size() > 0){
+
+          for(Bullet bullet : player.getFiredBullets()){
+
+            if(System.currentTimeMillis() >= bullet.getLastUpdateTime() + bullet.getTiming()){
+
+              bullet.velocityFromAngle();
+              bullet.setLastUpdateTime(System.currentTimeMillis());
+            }
+
+            if(bullet.getX() > worldBounds[0] + worldBounds[2] || bullet.getX() < worldBounds[0] ||
+              bullet.getY() > worldBounds[1] + worldBounds[3] || bullet.getY() < worldBounds[1])
+              player.removeFiredBullet(bullet);
           }
 
           for(Player otherPlayer : this.players){
@@ -82,26 +126,12 @@ public class Engine extends Thread{
                   player.removeFiredBullet(bullet);
                 }
               }
-
-              if(canMove)
-                canMove = !hitboxUtilities.isCollidingTwoPlayers(player, otherPlayer);
             }
           }
-
-          if(!canMove){
-            player.setLocation(playerX, playerY);
-            player.setAngle(playerAngle);
-          }
-
-          player.fixTurret();
-
-          if(player.isFiring())
-            player.fireBullet();
-
-      }
-      else{
-
-        this.players.remove(player);
+        }
+        else{
+          this.players.remove(player);
+        }
       }
     }
   }
