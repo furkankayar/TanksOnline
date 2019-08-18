@@ -1,27 +1,60 @@
 
-EnemyTank = function(id, game, bullets, coordX, coordY){
+class EnemyTank{
 
-  this.id = id;
-  this.mouseX = 0;
-  this.mouseY = 0;
-  this.health = 0
-  this.game = game;
+  constructor(id, game, coordX, coordY, isAlive){
 
-  this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_A_01');
-  this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_A_01');
-  this.healthBar = game.add.sprite(0, 0, 'HealthBar');
-  this.tank.scale.setTo(0.5);
-  this.tank.anchor.setTo(0.5, 0.5);
-  this.turret.scale.setTo(0.5);
-  this.turret.anchor.setTo(0.45, 0.80);
+    this.id = id;
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.health = 0
+    this.game = game;
 
-  game.world.bringToTop(this.tank);
-  game.world.bringToTop(tank);
-  game.world.bringToTop(this.turret);
-  game.world.bringToTop(turret);
+    this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_A_01');
+    this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_A_01');
+    this.healthBar = game.add.sprite(0, 0, 'HealthBar');
+    this.explosion = game.add.sprite(-5000, -5000, 'Explosion');
+    this.explosion.anchor.setTo(0.5, 0.5);
+    this.explosion.animations.add('explosion');
+    this.tank.scale.setTo(0.5);
+    this.tank.anchor.setTo(0.5, 0.5);
+    this.turret.scale.setTo(0.5);
+    this.turret.anchor.setTo(0.45, 0.80);
+    this.alive = isAlive;
+  }
 
 }
 
+
+
+class MainTank{
+
+  constructor(id, game, coordX, coordY){
+
+    this.id = id;
+    this.mouseX = 0;
+    this.mouseY = 0;
+    this.health = 0;
+    this.game = game;
+
+    this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_D_01');
+    this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_D_01');
+    this.healthBar = game.add.sprite(0, 0, 'HealthBar');
+    this.explosion = game.add.sprite(-5000, -5000, 'Explosion');
+    this.explosion.anchor.setTo(0.5, 0.5);
+    this.explosion.animations.add('explosion');
+    this.tank.scale.setTo(0.5);
+    this.tank.anchor.setTo(0.5, 0.5);
+    this.turret.scale.setTo(0.5);
+    this.turret.anchor.setTo(0.45, 0.80);
+
+
+    this.isFiring = false;
+    this.isAccelerating = false;
+    this.isReverseAccelerating = false;
+    this.isRotatingLeft = false;
+    this.isRotatingRight = false;
+  }
+}
 
 
 var game = new Phaser.Game(1600, 900, Phaser.AUTO, 'phaser-example',
@@ -43,24 +76,13 @@ function preload () {
   game.load.image('Hull_Color_D_01', './Assets/PNG/Hulls_Color_D/Hull_01.png');
   game.load.image('Turret_Color_A_01', './Assets/PNG/Weapon_Color_A/Gun_01.png');
   game.load.image('Turret_Color_D_01', './Assets/PNG/Weapon_Color_D/Gun_01.png');
-//  game.load.image('Background', './Assets/background.png');
   game.load.image('Background', './Assets/background3.png');
   game.load.image('Bullet', './Assets/PNG/Effects/Plasma.png');
   game.load.image('HealthBar', './Assets/healthbar.png');
+  game.load.spritesheet('Explosion', './Assets/explosionSpriteSheet2.png', 256 , 256, 48);
 
 }
 
-var id;
-
-var tank;
-var healthBar;
-var health;
-
-var isFiring = false;
-var isAccelerating = false;
-var isReverseAccelerating = false;
-var isRotatingLeft = false;
-var isRotatingRight = false;
 
 var jsonObj;
 
@@ -73,24 +95,7 @@ var time;
 var ping;
 var canPlay = true;
 
-
-var nwX;
-var nwY;
-var neX;
-var neY;
-var swX;
-var swY;
-var seX;
-var seY;
-
-var txnw ;
-var txne ;
-var txsw ;
-var txse ;
-var txctr;
-
-
-// RENDER //
+var player;
 
 function create () {
 
@@ -103,22 +108,22 @@ function create () {
     connection.send("getPlayerInfo");
   }
   connection.onmessage = function(e){
-  //  console.log(e.data);
+
     ping = date.getTime() - time;
     jsonObj = JSON.parse(e.data);
 
 
     if(jsonObj.connectedPlayerId != undefined){
-      id = jsonObj.connectedPlayerId;
-      tank.x = jsonObj.connectedPlayerCoordX;
-      tank.y = jsonObj.connectedPlayerCoordY;
-      turret.x = tank.x;
-      turret.y = tank.y;
-      console.log("Player id: " + id);
+
+      player = new MainTank(jsonObj.connectedPlayerId, game, jsonObj.connectedPlayerCoordX, jsonObj.connectedPlayerCoordY);
+      console.log("Player id: " + player.id);
     }
     else{
       executeJSON(jsonObj);
     }
+
+
+
   }
 
   //SOCKET CONNECTION
@@ -127,17 +132,7 @@ function create () {
   game.world.setBounds(-2000, -2000, 4000, 4000);
   game.time.slowMotion = 1;
   background = game.add.tileSprite(-2000, -2000, 4000, 4000, 'Background');
-//  background.fixedToCamera = true;
 
-  tank = game.add.sprite(0, 0, 'Hull_Color_D_01');
-  turret = game.add.sprite(0, 0, 'Turret_Color_D_01');
-  tank.scale.setTo(0.5);
-  tank.anchor.setTo(0.5, 0.5);
-  turret.scale.setTo(0.5);
-  turret.anchor.setTo(0.45, 0.80);
-//  tank.fixedToCamera = true;
-
-  healthBar = game.add.sprite(0, 0, 'HealthBar');
 
 
   //Bullets
@@ -156,32 +151,22 @@ function create () {
 
   this.game.renderer.renderSession.roundPixels = true; // I don't know if it works, will be checked later.
 
-
-// RENDER //
-
-  /*txnw = game.add.text(nwX, nwY, '.', {fill : 'white'});
-  txne = game.add.text(neX, neY, '.', {fill : 'white'});
-  txsw = game.add.text(swX, swY, '.', {fill : 'white'});
-  txse = game.add.text(seX, seY, '.', {fill : 'white'});
-  txctr = game.add.text(tank.x, tank.y, '*', {fill: 'white'});*/
-
-// RENDER //
 }
 
 setInterval(function(){
 
-  if(connection && connection.readyState == WebSocket.OPEN){
+  if(connection && connection.readyState == WebSocket.OPEN && player != undefined){
 
-    player = {
-              "isFiring": isFiring,
-              "isAccelerating": isAccelerating,
-              "isReverseAccelerating": isReverseAccelerating,
-              "isRotatingLeft": isRotatingLeft,
-              "isRotatingRight": isRotatingRight,
+    message = {
+              "isFiring": player.isFiring,
+              "isAccelerating": player.isAccelerating,
+              "isReverseAccelerating": player.isReverseAccelerating,
+              "isRotatingLeft": player.isRotatingLeft,
+              "isRotatingRight": player.isRotatingRight,
               "mouseX": game.input.mousePointer.x + game.camera.x,
               "mouseY": game.input.mousePointer.y + game.camera.y
     };
-    connection.send("getGameStatus;" + JSON.stringify(player));
+    connection.send("getGameStatus;" + JSON.stringify(message));
     time = date.getTime();
   }
 
@@ -190,74 +175,67 @@ setInterval(function(){
 
 function update () {
 
-/*  txnw.x = nwX;
-  txnw.y = nwY;
-  txne.x = neX;
-  txne.y = neY;
-  txsw.x = swX;
-  txsw.y = swY;
-  txse.x = seX;
-  txse.y = seY;
-  txctr.x = tank.x;
-  txctr.y = tank.y;*/
 
-  game.camera.x = tank.x + 50 * Math.sin(turret.angle * 3.14 / 180) - 800;
-  game.camera.y = tank.y - 50 * Math.cos(turret.angle * 3.14 / 180) - 450;
+  if(connection && connection.readyState == WebSocket.OPEN && player != undefined){
 
+    game.camera.x = player.tank.x + 50 * Math.sin(player.turret.angle * 3.14 / 180) - 800;
+    game.camera.y = player.tank.y - 50 * Math.cos(player.turret.angle * 3.14 / 180) - 450;
 
+    if(directions.up.isDown || wasdKeys.W.isDown){
 
-  if(directions.up.isDown || wasdKeys.W.isDown){
+      player.isAccelerating = true;
+    }
+    else{
 
-    isAccelerating = true;
-  }
-  else{
+      player.isAccelerating = false;
+    }
 
-    isAccelerating = false;
-  }
+    if(directions.down.isDown || wasdKeys.S.isDown){
 
-  if(directions.down.isDown || wasdKeys.S.isDown){
+      player.isReverseAccelerating = true;
+    }
+    else{
 
-    isReverseAccelerating = true;
-  }
-  else{
+      player.isReverseAccelerating = false;
+    }
 
-    isReverseAccelerating = false;
-  }
+    if(directions.left.isDown || wasdKeys.A.isDown){
 
-  if(directions.left.isDown || wasdKeys.A.isDown){
+      player.isRotatingLeft = true;
+    }
+    else{
 
-    isRotatingLeft = true;
-  }
-  else{
+      player.isRotatingLeft = false;
+    }
 
-    isRotatingLeft = false;
-  }
+    if(directions.right.isDown || wasdKeys.D.isDown){
 
-  if(directions.right.isDown || wasdKeys.D.isDown){
+      player.isRotatingRight = true;
+    }
+    else{
 
-    isRotatingRight = true;
-  }
-  else{
+      player.isRotatingRight = false;
+    }
 
-    isRotatingRight = false;
-  }
+    if(game.input.activePointer.isDown){
 
-  if(game.input.activePointer.isDown){
+      player.isFiring = true;
+    }
+    else{
 
-    isFiring = true;
-  }
-  else{
-
-    isFiring = false;
+      player.isFiring = false;
+    }
   }
 }
 
 
 function render () {
 
-  game.debug.text('FPS: ' + game.time.fps + ' Ping: ' + ping + ' ID: ' + id ,50, 50);
-  game.debug.text('X: ' + tank.x + '   Y: ' + tank.y, 50, 70);
+  if(connection && connection.readyState == WebSocket.OPEN && player != undefined){
 
+    game.debug.text('FPS: ' + game.time.fps + ' Ping: ' + ping + ' ID: ' + player.id ,50, 50);
+    game.debug.text('X: ' + player.tank.x + '   Y: ' + player.tank.y, 50, 70);
+  }
   if(!canPlay){
     game.debug.text('You Are Dead!!', 700, 430, 'white',  '36px Courier');
   }
@@ -266,46 +244,12 @@ function render () {
 
 function executeJSON(json){
 
-  /*if(json.playerNumber > playerNumber){
-
-    for(var i = 0 ; i < json.players.length ; i++){
-      if(id != json.players[i].id){
-        enemies[i] = new EnemyTank(json.players[i].id, game, null, json.players[i].positionX, json.players[i].positionY);
-        enemies[i].bulletNumber = json.players[i].bulletNumber;
-      }
-    }
-
-    playerNumber = json.playerNumber;
-  }*/
-/*  if(json.playerNumber > playerNumber){
-
-    for(var i = 0 ; i < json.players.length ; i++){
-
-      if(id == json.players[i].id){
-        continue;
-      }
-
-      var found = false;
-      for(var k = 0 ; k < enemies.length ; k++){
-        if(enemies[k].id == json.players[i].id){
-          found = true;
-        }
-      }
-
-      if(!found){
-        enemies[i] = new EnemyTank(json.players[i].id, game, null, json.players[i].positionX, json.players[i].positionY);
-      }
-
-      playerNumber = json.playerNumber;
-    }
-  }*/
-
 
   if(json.playerNumber > playerNumber){
 
     for(var i = 0 ; i < json.players.length ; i++){
 
-      if(id == json.players[i].id){
+      if(player.id == json.players[i].id){
         continue;
       }
 
@@ -317,7 +261,9 @@ function executeJSON(json){
       }
 
       if(!found){
-        enemies[enemies.length] = new EnemyTank(json.players[i].id, game, null, json.players[i].positionX, json.players[i].positionY);
+        enemies[enemies.length] = new EnemyTank(json.players[i].id, game, json.players[i].positionX, json.players[i].positionY, json.players[i].isAlive);
+        game.world.bringToTop(player.tank);
+        game.world.bringToTop(player.turret);
         playerNumber += 1;
       }
     }
@@ -326,35 +272,37 @@ function executeJSON(json){
 
   for(var i = 0 ; i < json.players.length ; i++){
 
-    if(json.players[i].id == id){
+    if(json.players[i].id == player.id){
 
       if(!json.players[i].isAlive && canPlay){
-        tank.kill();
-        turret.kill();
-        healthBar.kill();
-        canPlay = false;
-      }
-      bulletNumber = json.players[i].bulletNumber;
-      tank.x = json.players[i].positionX;
-      tank.y = json.players[i].positionY;
-      turret.angle = json.players[i].turretAngle;
-      turret.x = json.players[i].turretX;
-      turret.y = json.players[i].turretY;
-      tank.angle = json.players[i].angle;
-      health = json.players[i].health;
-      healthBar.x = tank.x - 50;
-      healthBar.y = tank.y + 100;
-      healthBar.width = (health / 100) * 100;
-      healthBar.x += (100 - (health / 100) * 100 ) / 2;
 
-      nwX = json.players[i].nwX;
-      nwY = json.players[i].nwY;
-      neX = json.players[i].neX;
-      neY = json.players[i].neY;
-      swX = json.players[i].swX;
-      swY = json.players[i].swY;
-      seX = json.players[i].seX;
-      seY = json.players[i].seY;
+        var tankX = player.tank.x;
+        var tankY = player.tank.y;
+
+        player.tank.kill();
+        player.turret.kill();
+        player.healthBar.kill();
+
+        if(canPlay){
+          game.world.bringToTop(player.explosion);
+          player.explosion.x = tankX;
+          player.explosion.y = tankY;
+          player.explosion.animations.play('explosion', 30, false);
+          canPlay = false;
+        }
+      }
+
+      player.tank.x = json.players[i].positionX;
+      player.tank.y = json.players[i].positionY;
+      player.turret.angle = json.players[i].turretAngle;
+      player.turret.x = json.players[i].turretX;
+      player.turret.y = json.players[i].turretY;
+      player.tank.angle = json.players[i].angle;
+      player.health = json.players[i].health;
+      player.healthBar.x = player.tank.x - 50;
+      player.healthBar.y = player.tank.y + 100;
+      player.healthBar.width = (player.health / 100) * 100;
+      player.healthBar.x += (100 - (player.health / 100) * 100 ) / 2;
 
     }
     else{
@@ -364,9 +312,20 @@ function executeJSON(json){
         if(enemies[k].id == json.players[i].id){
 
           if(!json.players[i].isAlive){
+
+            var tankX = enemies[k].tank.x;
+            var tankY = enemies[k].tank.y;
             enemies[k].tank.kill();
             enemies[k].turret.kill();
             enemies[k].healthBar.kill();
+
+            if(enemies[k].alive){
+              game.world.bringToTop(enemies[k].explosion);
+              enemies[k].explosion.x = tankX;
+              enemies[k].explosion.y = tankY;
+              enemies[k].explosion.animations.play('explosion', 30, false);
+              enemies[k].alive = false;
+            }
           }
           else{
             enemies[k].bulletNumber = json.players[i].bulletNumber;
