@@ -62,17 +62,7 @@ public class WebSocketServer {
       playerStatus.addProperty("turretY", player.getTurret().getY());
       playerStatus.addProperty("isAlive", player.isAlive());
       playerStatus.addProperty("health", player.getHealth());
-
-      double[] coordinates = player.getHitboxCoordinates();
-      playerStatus.addProperty("nwX", coordinates[0]);
-      playerStatus.addProperty("nwY", coordinates[1]);
-      playerStatus.addProperty("neX", coordinates[2]);
-      playerStatus.addProperty("neY", coordinates[3]);
-      playerStatus.addProperty("swX", coordinates[4]);
-      playerStatus.addProperty("swY", coordinates[5]);
-      playerStatus.addProperty("seX", coordinates[6]);
-      playerStatus.addProperty("seY", coordinates[7]);
-
+      playerStatus.addProperty("bulletNumber", player.getBulletNumber());
 
       for(Bullet bullet : player.getFiredBullets()){
         JsonObject bulletStatus = new JsonObject();

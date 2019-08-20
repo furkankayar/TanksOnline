@@ -7,19 +7,28 @@ class EnemyTank{
     this.mouseX = 0;
     this.mouseY = 0;
     this.health = 0
+    this.bulletNumber = 1000;
     this.game = game;
 
     this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_A_01');
     this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_A_01');
     this.healthBar = game.add.sprite(0, 0, 'HealthBar');
     this.explosion = game.add.sprite(-5000, -5000, 'Explosion');
+    this.explosionDust = game.add.sprite(-5000, -5000, 'ExplosionDust');
     this.explosion.anchor.setTo(0.5, 0.5);
+    this.explosionDust.anchor.setTo(0.5, 0.5);
+    this.explosionDust.scale.setTo(0.2, 0.2);
+    this.explosionDust.angle = Math.random() * 360;
     this.explosion.animations.add('explosion');
     this.tank.scale.setTo(0.5);
     this.tank.anchor.setTo(0.5, 0.5);
     this.turret.scale.setTo(0.5);
     this.turret.anchor.setTo(0.45, 0.80);
     this.alive = isAlive;
+
+
+    game.world.bringToTop(this.healthBar);
+    game.world.bringToTop(player.healthBar);
   }
 
 }
@@ -34,13 +43,18 @@ class MainTank{
     this.mouseX = 0;
     this.mouseY = 0;
     this.health = 0;
+    this.bulletNumber = 1000;
     this.game = game;
 
     this.tank = game.add.sprite(coordX, coordY, 'Hull_Color_D_01');
     this.turret = game.add.sprite(coordX, coordY, 'Turret_Color_D_01');
     this.healthBar = game.add.sprite(0, 0, 'HealthBar');
     this.explosion = game.add.sprite(-5000, -5000, 'Explosion');
+    this.explosionDust = game.add.sprite(-5000, -5000, 'ExplosionDust');
     this.explosion.anchor.setTo(0.5, 0.5);
+    this.explosionDust.anchor.setTo(0.5, 0.5);
+    this.explosionDust.scale.setTo(0.2, 0.2);
+    this.explosionDust.angle = Math.random() * 360;
     this.explosion.animations.add('explosion');
     this.tank.scale.setTo(0.5);
     this.tank.anchor.setTo(0.5, 0.5);
@@ -72,14 +86,16 @@ function preload () {
   game.physics.startSystem(Phaser.Physics.ARCADE);
   game.time.advancedTiming = true;
   game.forceSingleUpdate = false;
-  game.load.image('Hull_Color_A_01', './Assets/PNG/Hulls_Color_A/Hull_01.png');
-  game.load.image('Hull_Color_D_01', './Assets/PNG/Hulls_Color_D/Hull_01.png');
-  game.load.image('Turret_Color_A_01', './Assets/PNG/Weapon_Color_A/Gun_01.png');
-  game.load.image('Turret_Color_D_01', './Assets/PNG/Weapon_Color_D/Gun_01.png');
-  game.load.image('Background', './Assets/background3.png');
-  game.load.image('Bullet', './Assets/PNG/Effects/Plasma.png');
-  game.load.image('HealthBar', './Assets/healthbar.png');
-  game.load.spritesheet('Explosion', './Assets/explosionSpriteSheet2.png', 256 , 256, 48);
+  game.load.image('Hull_Color_A_01', '/static/Game/Assets/PNG/Hulls_Color_A/Hull_01.png');
+  game.load.image('Hull_Color_D_01', '/static/Game/Assets/PNG/Hulls_Color_D/Hull_01.png');
+  game.load.image('Turret_Color_A_01', '/static/Game/Assets/PNG/Weapon_Color_A/Gun_01.png');
+  game.load.image('Turret_Color_D_01', '/static/Game/Assets/PNG/Weapon_Color_D/Gun_01.png');
+  game.load.image('Background', '/static/Game/Assets/background3.png');
+  game.load.image('Bullet', '/static/Game/Assets/PNG/Effects/Light_Shell.png');
+  game.load.image('HealthBar', '/static/Game/Assets/healthbar.png');
+  game.load.image('ExplosionDust', '/static/Game/Assets/explosionDust.png');
+  game.load.spritesheet('Explosion', '/static/Game/Assets/explosionSpriteSheet2.png', 256 , 256, 48);
+  game.load.spritesheet('FireEffect', '/static/Game/Assets/fireSpriteSheet2.png', 128, 128, 64);
 
 }
 
@@ -140,6 +156,8 @@ function create () {
   bullets.createMultiple(1000, 'Bullet', 0, false);
   bullets.setAll('anchor.x', 0.5);
   bullets.setAll('anchor.y', 0.5);
+  bullets.setAll('scale.x', 0.8);
+  bullets.setAll('scale.y', 0.8);
 
 
 
@@ -285,9 +303,13 @@ function executeJSON(json){
 
         if(canPlay){
           game.world.bringToTop(player.explosion);
+          game.world.sendToBack(player.explosionDust);
+          game.world.sendToBack(background);
           player.explosion.x = tankX;
           player.explosion.y = tankY;
           player.explosion.animations.play('explosion', 30, false);
+          player.explosionDust.x = tankX;
+          player.explosionDust.y = tankY - 30;
           canPlay = false;
         }
       }
@@ -304,6 +326,24 @@ function executeJSON(json){
       player.healthBar.width = (player.health / 100) * 100;
       player.healthBar.x += (100 - (player.health / 100) * 100 ) / 2;
 
+
+      if(player.bulletNumber > json.players[i].bulletNumber){
+
+
+        let fireEffect = game.add.sprite(player.turret.x, player.turret.y, 'FireEffect');
+        fireEffect.animations.add('FireEffect');
+        fireEffect.anchor.setTo(0.6, 1.4);
+        fireEffect.angle = player.turret.angle;
+        fireEffect.animations.currentAnim.killOnComplete = true;
+        game.world.bringToTop(fireEffect);
+        player.bulletNumber = json.players[i].bulletNumber;
+        fireEffect.animations.play('FireEffect', 30, false);
+        /*player.fireEffect.visible = true;
+        game.world.bringToTop(player.fireEffect);
+        player.bulletNumber = json.players[i].bulletNumber;
+        player.fireEffect.animations.play('FireEffect', 30, false);*/
+
+      }
     }
     else{
 
@@ -321,14 +361,18 @@ function executeJSON(json){
 
             if(enemies[k].alive){
               game.world.bringToTop(enemies[k].explosion);
+              game.world.sendToBack(enemies[k].explosionDust);
+              game.world.sendToBack(background);
               enemies[k].explosion.x = tankX;
               enemies[k].explosion.y = tankY;
               enemies[k].explosion.animations.play('explosion', 30, false);
+              enemies[k].explosionDust.x = tankX;
+              enemies[k].explosionDust.y = tankY - 30;
               enemies[k].alive = false;
             }
           }
           else{
-            enemies[k].bulletNumber = json.players[i].bulletNumber;
+
             enemies[k].tank.x = json.players[i].positionX;
             enemies[k].tank.y = json.players[i].positionY;
             enemies[k].turret.x = json.players[i].turretX;
@@ -340,6 +384,19 @@ function executeJSON(json){
             enemies[k].healthBar.y = enemies[k].tank.y + 100;
             enemies[k].healthBar.width = (enemies[k].health / 100) * 100;
             enemies[k].healthBar.x += (100 - (enemies[k].health / 100) * 100 ) / 2;
+
+
+            if(enemies[k].bulletNumber > json.players[i].bulletNumber){
+
+              let fireEffect = game.add.sprite(enemies[k].turret.x, enemies[k].turret.y, 'FireEffect');
+              fireEffect.animations.add('FireEffect');
+              fireEffect.anchor.setTo(0.6, 1.4);
+              fireEffect.angle = enemies[k].turret.angle;
+              fireEffect.animations.currentAnim.killOnComplete = true;
+              game.world.bringToTop(fireEffect);
+              enemies[k].bulletNumber = json.players[i].bulletNumber;
+              fireEffect.animations.play('FireEffect', 30, false);
+            }
           }
         }
       }

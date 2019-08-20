@@ -14,7 +14,7 @@ public class Bullet extends Body{
     this.id = id;
     this.x = x;
     this.y = y;
-    this.velocity = 25.0f;
+    this.velocity = 50.0f;
   }
 
 

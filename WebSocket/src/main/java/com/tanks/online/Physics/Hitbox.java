@@ -80,7 +80,7 @@ public class Hitbox{
 
   public double[] bulletHitboxPoint(Bullet bullet){
 
-    return new double[]{ bullet.getX() + Math.sin(Math.toRadians(bullet.getAngle())) * 10, bullet.getY() - Math.cos(Math.toRadians(bullet.getAngle())) * 10};
+    return new double[]{ bullet.getX() , bullet.getY() };
   }
 
   public static Hitbox getInstance(){

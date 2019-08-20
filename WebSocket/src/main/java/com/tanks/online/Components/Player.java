@@ -45,7 +45,7 @@ public class Player extends Body{
     this.turret = new Turret();
     this.id = id;
     this.firing = false;
-    this.fireRate = 100;
+    this.fireRate = 1000;
     this.health = 100;
     this.alive = true;
     this.velocity = 0.00f;
@@ -53,7 +53,7 @@ public class Player extends Body{
     this.bulletNumber = DEFAULT_BULLET_NUMBER;
     this.firedBullets = Collections.synchronizedList(new ArrayList<Bullet>());
     com.tanks.online.WebSocketServer.physicsEngine.addBodyToEngine(this);
-    this.setSize(75, 120);
+    this.setSize(75, 100);
     this.setLocation(Math.random() * 500, Math.random() * 500);
 
   }

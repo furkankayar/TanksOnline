@@ -60,7 +60,6 @@ public class WebSocket{
     public void onClose(Session session, CloseReason closeReason) {
         logger.info(String.format("Session %s closed because of %s", session.getId(), closeReason));
         player.setAlive(false);
-        WebSocketServer.physicsEngine.getPlayers().remove(this.player);
     }
 
 
